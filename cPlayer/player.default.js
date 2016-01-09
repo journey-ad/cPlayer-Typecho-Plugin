@@ -3,17 +3,29 @@
 * Author  Corps
 */
 
-function cPlayer(a,b,c){
+
+function cPlayer(json){
+	try{
+		json = eval(json);
+		console.log(json);
+	}catch(e){
+		if((/(http|https):\/\//gi).test(json)){
+			var url = json;
+			json = new Object;
+			json.url = url;
+		}else{
+			console.error("What the fuck you do! \nThere isn't anything as a music url.");
+			return false;
+		}
+	}
 	var thisPlayer = document.createElement("div");
 	thisPlayer.classList.add("player");
-	if(a !== undefined) {
-		thisPlayer.setAttribute("src", a);
-	}else{
-		console.error("What the fuck you do! \nThere isn't anything as a music url.");
-		return false;
+	if(json.url !== undefined) {
+		thisPlayer.setAttribute("src", json.url);
+		console.log(json.url);
 	}
-	if(b != undefined) thisPlayer.innerHTML = b;
-	if(c !== undefined) thisPlayer.classList.add(c);
+	if(json.lyric !== undefined) thisPlayer.innerHTML = json.lyric;
+	if(json.white === true) thisPlayer.classList.add("white");
 	thisPlayer.cPlayer();
 	return thisPlayer;
 }
@@ -88,7 +100,6 @@ Element.prototype.cPlayer = function(){
 	if(this.audio === undefined) this.audio = new Audio;
 	this.audio.src = this.getAttribute("src");
 	this.innerHTML = this.audio.outerHTML + this.innerHTML;
-	this.audio = this.getElementsByTagName("audio")[0];
 	//增加Waiting DIV
 	if(this.getElementsByClassName("placeholder")[0] === undefined) {
 		var p = document.createElement("div");
@@ -99,13 +110,14 @@ Element.prototype.cPlayer = function(){
 	if(this.getElementsByClassName("player-primary")[0] === undefined){
 		var p = document.createElement("div");
 		p.classList.add("player-primary");
-		p.innerHTML = '				<div class="left"><button class="bc plays"><i class="played">played</i></button><div class="leng"><div class="clicks"></div><div class="wall"></div></div></div><div class="right"><button class="bc volumeButton"><i class="volume_up">volume_up</i></button><div class="volume"><div class="v-clicks"></div><div class="v-wall"></div></div></div>';
+		p.innerHTML = '				<div class="left"><button class="bc plays"><i class="played">played</i></button><div class="leng"><div class="wall"><div class="clicks"></div><div class="buffer"></div></div></div></div><div class="right"><button class="bc volumeButton"><i class="volume_up">volume_up</i></button><div class="volume"><div class="v-wall"><div class="v-clicks"></div></div></div></div>';
 		this.innerHTML = this.innerHTML + p.outerHTML;
 	}
 	//增加歌词DIV
 	if(this.lyric.check === true){
 		var p = document.createElement("div");
 		p.classList.add("lyric");
+		p.style.display = "none";
 		pl = document.createElement("div");
 		pl.classList.add("lyric-primary");
 		pl.innerHTML = this.lyric.result;
@@ -114,12 +126,25 @@ Element.prototype.cPlayer = function(){
 	}
 	this.addMusic();
 }
+
+Element.prototype.playicon = function(a,lists){
+	    if(a === "pause"){
+    		lists.icon.plays.classList.toggle("played");
+    		if(lists.icon.plays.classList.contains("paused")) lists.icon.plays.classList.remove("paused");
+    	}else if(a === "play"){
+    		lists.icon.plays.classList.toggle("paused");
+    		if(lists.icon.plays.classList.contains("played")) lists.icon.plays.classList.remove("played");
+    	};
+}
+
 Element.prototype.addMusic = function(){
+	this.audio = this.getElementsByTagName("audio")[0];
 	var lists = new Object;
 	lists.button = new Object;
 	lists.icon = new Object;
 	lists.button.plays = this.getElementsByClassName("plays")[0];
 	lists.button.clicks = this.getElementsByClassName("clicks")[0];
+	lists.button.buffer = this.getElementsByClassName("buffer")[0];
 	lists.button.vclicks = this.getElementsByClassName("v-clicks")[0];
 	lists.button.volumeButton = this.getElementsByClassName("volumeButton")[0];
 	lists.icon.volumeButton = this.getElementsByClassName("volumeButton")[0].getElementsByTagName('i')[0];
@@ -139,8 +164,7 @@ Element.prototype.addMusic = function(){
 		thats.audio.currentTime = (e.offsetX / this.offsetWidth * thats.audio.duration);
 		if(thats.audio.paused === true){
 			thats.audio.play();
-			lists.icon.plays.classList.toggle("paused");
-			if(lists.icon.plays.classList.contains("played")) lists.icon.plays.classList.remove("played");
+			//thats.playicon("play",lists); 冲突
 		}
 	};
 	this.getElementsByClassName("volume")[0].onmousedown = function (e) {
@@ -161,14 +185,16 @@ Element.prototype.addMusic = function(){
 		//thats.getElementsByClassName("placeholder")[0].fade(100); 效果不好
 	};
 
-	this.audio.oncanplaythrough = function(){
+	this.audio.oncanplay = function(){
 		if(thats.getElementsByClassName("placeholder")[0].style.display !== "none")thats.getElementsByClassName("placeholder")[0].fade(100);
 		lists.button.vclicks.style.width = (this.volume * 100) + "%";
+		setInterval(function(){
+			lists.button.buffer.style.width = (( thats.audio.buffered.end(0) / thats.audio.duration ) * 100) + "%";
+		},200);
 	};
 
 	this.audio.onended = function(){
-		lists.icon.plays.classList.toggle("played");
-		if(lists.icon.plays.classList.contains("paused")) lists.icon.plays.classList.remove("paused");
+		thats.playicon("pause",lists);
 		if(thats.lyric.check === true){
 			lists.lyricprimary.style.transform = "translateY(100px)";
 			thats.getElementsByClassName("lyric")[0].slide(500);
@@ -176,14 +202,16 @@ Element.prototype.addMusic = function(){
 		i=0;
 		thats.audio.pause();
 	};
-	for (var key = 0; key < document.getElementsByClassName("lyric").length; key++) {
-		document.getElementsByClassName("lyric")[key].slide(500);
-	};
+
+	this.audio.onpause = function(){
+		thats.playicon("pause",lists);
+	}
 
 	this.audio.onplay = function(){
 		if(thats.lyric.check === true && thats.getElementsByClassName("lyric")[0].style.display === "none"){
 			thats.getElementsByClassName("lyric")[0].slide(500);
 		}
+		thats.playicon("play",lists);
 	};
 
     //This is LYRICs Break.
@@ -200,12 +228,15 @@ Element.prototype.addMusic = function(){
     				i++;
     			}
     		}while(lists.lrc[i].getAttribute("time")<=thats.audio.currentTime&&i < (lists.lrc.length-1));
-    		while(thats.paused !== true && i <= (lists.lrc.length) && lists.lrc[i].getAttribute("time")>thats.audio.currentTime){
-    			i = i>0 ? i-1 : i+1;
-    			if(thats.getElementsByClassName("lyric-context")[0]) thats.getElementsByClassName("lyric-context")[0].classList.toggle("lyric-context");
-    			lists.lrc[i].classList.toggle("lyric-context");
-    			lists.lyricprimary.style.transform = "translateY("+(-(thats.getElementsByClassName("lyric-context")[0].offsetTop-thats.getElementsByClassName("lyric-context")[0].parentNode.offsetTop)+parseInt(getComputedStyle(thats.getElementsByClassName("lyric-context")[0].parentNode.parentNode).height)/2 - thats.getElementsByClassName("lyric-context")[0].scrollHeight/2)+"px)";
-    		}
+    		(function lrcu(){
+    			if(thats.paused !== true && i <= (lists.lrc.length) && lists.lrc[i].getAttribute("time")>thats.audio.currentTime && i>1){
+    				i--;
+    				if(thats.getElementsByClassName("lyric-context")[0]) thats.getElementsByClassName("lyric-context")[0].classList.toggle("lyric-context");
+    				lists.lrc[i].classList.toggle("lyric-context");
+    				lists.lyricprimary.style.transform = "translateY("+(-(thats.getElementsByClassName("lyric-context")[0].offsetTop-thats.getElementsByClassName("lyric-context")[0].parentNode.offsetTop)+parseInt(getComputedStyle(thats.getElementsByClassName("lyric-context")[0].parentNode.parentNode).height)/2 - thats.getElementsByClassName("lyric-context")[0].scrollHeight/2)+"px)";
+    				setTimeout(0,lrcu);
+    			}
+    		})();
     	}else{
     		if(thats.getElementsByClassName("lyric-context")[0]) thats.getElementsByClassName("lyric-context")[0].classList.toggle("lyric-context");
     		lists.lrc[i].classList.toggle("lyric-context");
@@ -217,12 +248,10 @@ Element.prototype.addMusic = function(){
     lists.button.plays.onclick = function(){
     	if(thats.audio.paused === false){
     		thats.audio.pause();
-    		lists.icon.plays.classList.toggle("played");
-    		if(lists.icon.plays.classList.contains("paused")) lists.icon.plays.classList.remove("paused");
+    		//thats.playicon("pause",lists); onpause 冲突
     	}else{
     		thats.audio.play();
-    		lists.icon.plays.classList.toggle("paused");
-    		if(lists.icon.plays.classList.contains("played")) lists.icon.plays.classList.remove("played");
+    		//thats.playicon("play",lists); onplay 冲突
     	};
     };
     lists.button.volumeButton.onclick = function(){
@@ -241,7 +270,10 @@ Element.prototype.addMusic = function(){
 
 window.onload = function(){
 		for(var key = 0;key <= (document.getElementsByClassName("player").length-1);key++){
-			document.getElementsByClassName("player")[key].cPlayer();
+			try{
+				document.getElementsByClassName("player")[key].cPlayer();
+			}catch(e){
+				alert(e);
+			}
 		}
 };
-
