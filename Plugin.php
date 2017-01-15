@@ -6,7 +6,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit;
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.0.0
+ * @version 1.0.2
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
