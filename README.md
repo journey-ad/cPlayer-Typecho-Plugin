@@ -3,6 +3,7 @@ A typecho plugin for the beautiful html5 music player https://github.com/Copay/c
 
 [Demo](https://imjad.cn/archives/none/cplayer-test)
 
+![demo](https://img.imjad.cn/images/2017/01/15/Screenshotfrom2017-01-1513-45-40.png)
 ## 介绍
 1. 通过简短的代码在文章或页面中插入漂亮的Html5播放器
 2. 自动解析lrc链接，可根据歌曲名和歌手名自动查找封面并生成缓存
@@ -29,14 +30,14 @@ Download ZIP, 解压，将 cPlayer-Typecho-Plugin-master 重命名为 cPlayer �
 ```
 [player 属性1="值1" 属性2="值2" 属性3="值3" /]
 or
-[player 属性1="值1" 属性2="值2" 属性3="值3"][lrc]歌词[/lrc][/player]
+[player 属性1="值1" 属性2="值2" 属性3="值3"][lrc]歌词[/lrc][tlrc]歌词翻译[/tlrc][/player]
 ```
 
 example:
 ```
-[player url="http://xxx.com/xxx.mp3" artist="Someone" name="Title" showlrc="false"/]
+[player url="http://xxx.com/xxx.mp3" artist="Someone" name="Title"/]
 
-[player url="http://xxx.com/xxx.mp3" artist="Someone" name="Title"][lrc][00:00.00]Test lyrics[/lrc][/player]
+[player url="http://xxx.com/xxx.mp3" artist="Someone" name="Title"][lrc][00:00.00]Test lyrics[/lrc][tlrc][00:00.00]Test lyrics[/tlrc][/player]
 
 网易云音乐：
 [player id="26598946"/]
@@ -56,7 +57,7 @@ example:
 ```
 [player]
 [mp3 url="http://xxx.com/xxx.mp3" artist="Someone" name="Title"/]
-[mp3 url="http://xxx.com/xxx.mp3" artist="Someone" tname="Title"][lrc][00:00.00]Test lyrics[/lrc][/mp3]
+[mp3 url="http://xxx.com/xxx.mp3" artist="Someone" name="Title"][lrc][00:00.00]Test lyrics[/lrc][tlrc][00:00.00]Test lyrics[/tlrc][/mp3]
 [mp3 id="29947420"/] //网易云音乐歌曲id直接解析
 [/player]
 ```
@@ -84,6 +85,7 @@ example:
 [player] :整个播放器的标签，里面可用下面提到的所有属性
 [mp3] :可以用歌曲属性和网易云音乐属性，用于嵌套在[player]标签内部添加音乐
 [lrc] :用以添加文本的歌词，可嵌套在[mp3],[player]标签内部；只有当其父标签只定义一首歌的时候才起作用
+[tlrc] :用以添加文本的歌词翻译，可嵌套在[mp3],[player]标签内部；只有当其父标签只定义一首歌的时候才起作用，需要[lrc]标签
 ```
 
 #### 关于各个标签的属性
@@ -91,10 +93,11 @@ example:
 ```
 url: mp3文件的链接，必需
 lrc: 歌词的lrc链接，非必需
+tlrc: 歌词翻译的lrc链接，需要lrc，非必需
 lrcoffset: 歌词整体提前时间（ms）若这个值为负数则为歌词整体延后的时间
 name: 歌曲的标题，若值为空则显示 Unknown
 artist: 歌曲的艺术家，若值为空则显示 Unknown
-cover: 封面图片链接，非必需，若该值为图片链接则按照链接加载封面图，若没有此属性则会按照title和artist自动从豆瓣api中查找封面图，若值为 false 则不自动查找封面，显示默认封面图片
+cover: 封面图片链接，非必需，若该值为图片链接则按照链接加载封面图，若没有此属性则会按照name和artist自动从豆瓣api中查找封面图，若值为 false 则不自动查找封面，显示默认封面图片
 ```
 网易云音乐(与歌曲属性用法一样)
 ```
