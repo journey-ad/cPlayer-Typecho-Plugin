@@ -155,13 +155,20 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 <!-- cPlayer Start -->
 <script type="text/javascript" src="{$playerurl}cplayer.min.js"></script>
 <script>
+"use strict";
+(function(){
 var len = cPlayerOptions.length;
 for(let i=0;i<len;i++){
+    var element = document.getElementById('player' + cPlayerOptions[i]['id'])
+    while (element.hasChildNodes()) {
+        element.removeChild(element.firstChild);
+    }
     cPlayers[i] = new cPlayer({
-        element: document.getElementById('player' + cPlayerOptions[i]['id']),
+        element: element,
         list: cPlayerOptions[i]['list'],
         });
-};
+};})();
+cPlayers = [];cPlayerOptions = [];
 </script>
 <!-- cPlayer End -->
 EOF;
