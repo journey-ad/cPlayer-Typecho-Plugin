@@ -1,12 +1,13 @@
 <?php
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
+date_default_timezone_set('PRC');
 
 /**
  * A beautiful and clean WEB Music Player by HTML5. <a href="http://cplayer.js.org/">http://cplayer.js.org/</a>
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.0.3
+ * @version 1.1.0
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -79,6 +80,11 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
             'notlyric', null, '翻译不存在的说…╮(╯▽╰)╭',
             _t('翻译不存在时显示的文字'), _t('翻译不存在时显示的文字'));
         $form->addInput($notlyric);
+
+        $MUSIC_U = new Typecho_Widget_Helper_Form_Element_Text(
+            'MUSIC_U', null, '',
+            _t('MUSIC_U'), _t('MUSIC_U的值，需要带MUSIC_U='));
+        $form->addInput($MUSIC_U);
 
         $cache = new Typecho_Widget_Helper_Form_Element_Radio('cache',
             array('false'=>_t('否')),'false',_t('清空缓存'),_t('清空插件生成的缓存文件，必要时可以使用'));
@@ -241,7 +247,7 @@ EOF;
         //开始解析音乐地址
         $result = array();
         //解析[player]标签内id和url属性
-        if (isset($atts['url']) || isset($atts['id'])){
+        if (isset($atts['url']) || isset($atts['id']) || isset($atts['type'])){
             $r = self::parse($matches[5], $atts);
             if ($r) $result = array_merge($result, $r);
         }
@@ -354,9 +360,10 @@ EOF;
         }
         $atts['transLyric'] = false;
         //解析网易云音乐
-        if(isset($atts['id'])){
+        if(isset($atts['id']) || isset($atts['type'])){
+            $id = isset($atts['id']) ? $atts['id'] : null;
             $type = isset($atts['type']) ? $atts['type'] : 'song';
-            $result = self::parse_netease_old($atts['id'], $type);
+            $result = self::parse_netease($id, $type);
             if ($result)
                 $return = array_merge($return, $result);
         }
@@ -396,7 +403,7 @@ EOF;
                 $atts['image'] = $atts['cover'];
             }
             //判断是修改网易获取的歌曲属性还是添加自己的歌曲链接
-            if (! isset($atts['id'])) {
+            if (!isset($atts['id']) && !isset($atts['type'])) {
                 $return[] = $atts;
             }else{
                 //当没有自定义歌词时候删除变量避免覆盖掉原有歌词
@@ -420,7 +427,7 @@ EOF;
      * @param unknown $type
      * @return boolean|multitype:multitype:unknown Ambigous <>
      */
-    private static function parse_netease_old($id, $type)
+    private static function parse_netease($id=null, $type='song')
     {
         //当id过长时md5避免缓存出错
         $key = 'netease_'.$type.'_'.(strlen($id) > 20 ? md5($id) : $id);
@@ -432,6 +439,10 @@ EOF;
         //缓存过期或者找不到的时候则重新请求服务器（设置过期时间是因为歌单等信息可能会发生改变），否则返回缓存
         if ($result && isset($result['data']) && ($type == "song" || (isset($result['time']) && (time() - $result['time']) < $listexpire))){
             $data = $result['data'];
+        //若类型为日推且当前时间为缓存时间第二天6:00之后则重新请求
+        }elseif ($result && isset($result['data']) && ($type == "recommend" && (date("d", time()) > date("d", $result['time']) && date("Hi", time()) > 600))){
+            $data = self::get_netease_music($id, $type);
+            self::cache_set($key, array('time' => time(),'data' => $data));
         }else{
             $data = self::get_netease_music($id, $type);
             self::cache_set($key, array('time' => time(),'data' => $data));
@@ -440,12 +451,12 @@ EOF;
         $return = array();
         foreach ($data['trackList'] as $v){
             $return[] = array(
-                    'artist' => $v['artist'],
-                    'name' => $v['title'],
-                    'image' => $v['pic'],
-                    'url' => $v['location'],
-                    'lyric' => $v['lyric'],
-                    'transLyric' => $v['tlyric'],
+                'artist' => $v['artist'],
+                'name' => $v['title'],
+                'image' => $v['pic'],
+                'url' => $v['location'],
+                'lyric' => $v['lyric'],
+                'transLyric' => $v['tlyric'],
             );
         }
         return $return; 
@@ -458,31 +469,38 @@ EOF;
      * 
      * @link https://github.com/webjyh/WP-Player/blob/master/include/player.php
      * @param unknown $id 
-     * @param unknown $type 获取的id的类型，song:歌曲,album:专辑,artist:艺人,collect:歌单
+     * @param unknown $type 获取的id的类型，song:歌曲,album:专辑,artist:艺人,collect:歌单,recommend:日推
      */
-    private static function get_netease_music($id, $type = 'song')
+    private static function get_netease_music($id=null, $type = 'song')
     {
+        $params = 'qvmQPOXJn2RCcYFR2o4kZ56CrFHdXBH6RFKKe0/boBPIPmS70RdZjACB1ZG0iH4Vj2p/TTRUnF/XSJVKStdDDR3TXG71PaL9V1siWuUudVrIg/5ieJYI/loGIpG5d34Ha20r8cXkRgqAtlN68ZoR0L36tqCbXXsGg9xSjnVmX5w9rfiVx4GpTiSQvanuKpCq1yvkW491Tye/TzMtKz6QeRnZNk2dLIuHRo8t0EwdjQ+oQby6gIkHp/hnH8CejVvTAo21osX97KucW79pK3qXuw==';
+        $encSecKey = '8777f9ee03bc17ca48ae20b210ff0c14c49a2fcc2985c5e0cb50f9938948db4786e8ff4638b98c2ce17d11d5f1590b953991ffe9a2a75e496beb16220d7d01c3d68f472c4b495bf278156d970d350cb207620b87bf405bd936d19f4c95dbdffb73c2e000b59f910d9508b2f392ac0fbba7932544496757ead1ce705b6877bf87';
+        $UA = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.157 Safari/537.36';
+        $MUSIC_U = Typecho_Widget::widget('Widget_Options')->plugin('cPlayer')->MUSIC_U;
+
         $return = false;
+        $data = array(
+            'COOKIE' => 'appver=2.0.2',
+            'REFERER' => 'http://music.163.com/'
+        );
         switch ( $type ) {
             case 'song': $url = "http://music.163.com/api/song/detail/?ids=[$id]"; $key = 'songs'; break;
             case 'album': $url = "http://music.163.com/api/album/$id?id=$id"; $key = 'album'; break;
             case 'artist': $url = "http://music.163.com/api/artist/$id?id=$id"; $key = 'artist'; break;
             case 'collect': $url = "http://music.163.com/api/playlist/detail?id=$id"; $key = 'result'; break;
+            case 'recommend': 
+                $url = "http://music.163.com/weapi/v1/discovery/recommend/songs?csrf_token=";
+                $data['POST'] = array(
+                    'params' => $params,
+                    'encSecKey' => $encSecKey
+                );
+                $data['COOKIE'] = $MUSIC_U;
+                $data['USERAGENT'] = $UA;
+                $key = 'recommend';
+                break;
             default: $url = "http://music.163.com/api/song/detail/?ids=[$id]"; $key = 'songs';
         }
-
-        if (!function_exists('curl_init')) return false;
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Cookie: appver=2.0.2' ));
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-        curl_setopt($ch, CURLOPT_REFERER, 'http://music.163.com/;');
-        $cexecute = curl_exec($ch);
-        curl_close($ch);
-
+        $cexecute = self::fetch_url($url, $data);
         if ( $cexecute ) {
             $result = json_decode($cexecute, true);
             if ( $result['code'] == 200 && $result[$key] ){
@@ -494,6 +512,7 @@ EOF;
                     case 'album' : $data = $result[$key]['songs']; break;
                     case 'artist' : $data = $result['hotSongs']; break;
                     case 'result' : $data = $result[$key]['tracks']; break;
+                    case 'recommend' : $data = $result[$key]; break;
                     default : $data = $result[$key]; break;
                 }
 
@@ -504,14 +523,14 @@ EOF;
                     $lyric = self::get_netease_lyric($data['id']);
 
                     $list[$data['id']] = array(
-                            'song_id' => $data['id'],
-                            'title' => $data['name'],
-                            'album_name' => $data['album']['name'],
-                            'artist' => $data['artists'][0]['name'],
-                            'location' => str_replace('http://m', '//p', $data['mp3Url']),
-                            'pic' => str_replace('http://p', '//p', $data['album']['blurPicUrl'].'?param=128x128'),
-                            'lyric' => $lyric['lyric'],
-                            'tlyric' => $lyric['tlyric']
+                        'song_id' => $data['id'],
+                        'title' => $data['name'],
+                        'album_name' => $data['album']['name'],
+                        'artist' => $data['artists'][0]['name'],
+                        'location' => str_replace('http://m', '//p', $data['mp3Url']),
+                        'pic' => str_replace('http://p', '//p', $data['album']['blurPicUrl'].'?param=128x128'),
+                        'lyric' => $lyric['lyric'],
+                        'tlyric' => $lyric['tlyric']
                     );
                 }
                 //修复一次添加多个id的乱序问题
@@ -547,19 +566,15 @@ EOF;
         }else{
             //缓存取不到则重新抓取
             $url = "http://music.163.com/api/song/lyric?os=pc&id=$id&lv=-1&kv=-1&tv=-1";
-            $refere = 'http://music.163.com;';
             if (!function_exists('curl_init') ) {
                 return false;
             } else {
-                $ch = curl_init();
-                curl_setopt($ch, CURLOPT_URL, $url);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, array( 'Cookie: appver=2.0.2' ));
-                curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                curl_setopt($ch, CURLOPT_BINARYTRANSFER, true);
-                curl_setopt($ch, CURLOPT_REFERER, $refere);
-                $cexecute = curl_exec($ch);
-                curl_close($ch);
+                $data = array(
+                    'COOKIE' => 'appver=2.0.2',
+                    'REFERER' => 'http://music.163.com/'
+                );
+                $cexecute = self::fetch_url($url, $data);
+                
                 $JSON = false;
                 if ( $cexecute ) {
                     $result = json_decode($cexecute, true);
@@ -600,6 +615,7 @@ EOF;
             $arg = http_build_query(array('q' => $words,'count'=> 1 ));
             $url = false;
             $g = self::fetch_url('https://api.douban.com/v2/music/search?'.$arg);
+
             if ($g){
                 $g = json_decode($g,true);
                 if($g['count']){
@@ -676,26 +692,47 @@ EOF;
         }
     }
 
-
     /**
      * url抓取,两种方式,优先用curl,当主机不支持curl时候采用file_get_contents
+     * 参数$data为数组，结构类似于
+     * $data = array(
+            'POST'       => array(
+                    'params'    => '',
+                    'encSecKey' => ''
+                ),
+            'COOKIE'     => 'appver=2.0.2',
+            'REFERER'    => 'http://music.163.com/',
+            'HTTPHEADER' => '',
+            'USERAGENT'  => ''
+        );
      * 
      * @param unknown $url
+     * @param array $data
      * @return boolean|mixed
      */
-    private static function fetch_url($url)
+    private static function fetch_url($url,$data = null)
     {
-
         if(function_exists('curl_init')){
-            $ch = curl_init($url); 
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true) ; 
-            curl_setopt($ch, CURLOPT_BINARYTRANSFER, true) ; 
-            curl_setopt($ch, CURLOPT_TIMEOUT, 15);
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-            $output = curl_exec($ch);
-            $httpCode = curl_getinfo($ch,CURLINFO_HTTP_CODE);
+            $curl=curl_init();
+            curl_setopt($curl,CURLOPT_URL,$url);
+            if(isset($data['POST'])){
+                if(is_array($data['POST'])) $data['POST'] = http_build_query($data['POST']);
+                curl_setopt($curl,CURLOPT_POSTFIELDS,$data['POST']);
+                curl_setopt($curl,CURLOPT_POST, true);
+            }
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_BINARYTRANSFER, true);
+            curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, 10);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+            if(isset($data['HTTPHEADER'])) curl_setopt($curl, CURLOPT_HTTPHEADER, $data['HTTPHEADER']);
+            if(isset($data['REFERER'])) curl_setopt($curl,CURLOPT_REFERER, $data['REFERER']);
+            if(isset($data['COOKIE'])) curl_setopt($curl,CURLOPT_COOKIE, $data['COOKIE']);
+            if(isset($data['USERAGENT'])) curl_setopt($curl,CURLOPT_USERAGENT, $data['USERAGENT']);
+            $result=curl_exec($curl);
+            $httpCode = curl_getinfo($curl,CURLINFO_HTTP_CODE);
+            curl_close($curl);
             if ($httpCode != 200) return false;
-            return $output;
+            return $result;
         }else{
             //若主机不支持openssl则file_get_contents不能打开https的url
             if($result = @file_get_contents($url)){
