@@ -7,7 +7,7 @@ date_default_timezone_set('PRC');
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.1.0
+ * @version 1.1.1
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -16,7 +16,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 {
     //此变量用以在一个变量中区分多个播放器实例
     protected static $playerID = 0;
-    
+
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
      * 
@@ -34,7 +34,8 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
         $info = self::is_really_writable(dirname(__FILE__)."/cache") ? "插件启用成功！！" : "cPlayer插件目录的cache目录不可写，可能会导致博客加载缓慢！"; 
         return _t($info);
     }
-    
+
+
     /**
      * 禁用插件方法,如果禁用失败,直接抛出异常
      * 
@@ -53,7 +54,8 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
         }
         return _t('cPlayer插件禁用成功，所有缓存已清空!');
     }
-    
+
+
     /**
      * 获取插件配置面板
      * 
@@ -69,21 +71,25 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
         $listexpire = new Typecho_Widget_Helper_Form_Element_Text(
             'listexpire', null, '43200',
             _t('歌单更新周期'), _t('设置歌单的缓存时间（单位：秒），超过设定时间后歌单将自动更新'));
+        $listexpire->input->setAttribute('placeholder','43200');
         $form->addInput($listexpire);
 
         $nolyric = new Typecho_Widget_Helper_Form_Element_Text(
             'nolyric', null, '找不到歌词的说…(⊙﹏⊙)',
             _t('找不到歌词时显示的文字'), _t('找不到歌词时显示的文字'));
+        $nolyric->input->setAttribute('placeholder','找不到歌词的说…(⊙﹏⊙)');
         $form->addInput($nolyric);
 
         $notlyric = new Typecho_Widget_Helper_Form_Element_Text(
             'notlyric', null, '翻译不存在的说…╮(╯▽╰)╭',
             _t('翻译不存在时显示的文字'), _t('翻译不存在时显示的文字'));
+        $notlyric->input->setAttribute('placeholder','翻译不存在的说…╮(╯▽╰)╭');
         $form->addInput($notlyric);
 
         $MUSIC_U = new Typecho_Widget_Helper_Form_Element_Text(
             'MUSIC_U', null, '',
             _t('MUSIC_U'), _t('MUSIC_U的值，需要带MUSIC_U='));
+        $MUSIC_U->input->setAttribute('placeholder','MUSIC_U=…');
         $form->addInput($MUSIC_U);
 
         $cache = new Typecho_Widget_Helper_Form_Element_Radio('cache',
@@ -130,6 +136,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
     public static function personalConfig(Typecho_Widget_Helper_Form $form)
     {}
 
+
     /**
      * 头部css挂载,并定义参数的变量
      * 
@@ -153,10 +160,9 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
      *
      * @return void
      */
-     public static function footerjs()
-     {
+    public static function footerjs()
+    {
         $playerurl = Helper::options()->pluginUrl.'/cPlayer/assets/dist/';
-        
         echo <<<EOF
 <!-- cPlayer Start -->
 <script type="text/javascript" src="{$playerurl}cplayer.min.js"></script>
@@ -178,8 +184,9 @@ cPlayers = [];cPlayerOptions = [];
 </script>
 <!-- cPlayer End -->
 EOF;
-     }
-     
+    }
+
+
     /**
      * MD兼容性过滤
      * 
@@ -190,6 +197,7 @@ EOF;
     {
         return $value;
     }
+
 
     /**
      * 内容标签替换
@@ -215,7 +223,8 @@ EOF;
 
         return $content;
     }
-    
+
+
     /**
      * 回调解析
      * @param unknown $matches
@@ -323,6 +332,7 @@ EOF;
         self::$playerID++;
         return self::$playerID;
     }
+
 
     /**
      * 根据参数进一步解析得到歌曲的信息
@@ -473,15 +483,11 @@ EOF;
      */
     private static function get_netease_music($id=null, $type = 'song')
     {
-        $params = 'qvmQPOXJn2RCcYFR2o4kZ56CrFHdXBH6RFKKe0/boBPIPmS70RdZjACB1ZG0iH4Vj2p/TTRUnF/XSJVKStdDDR3TXG71PaL9V1siWuUudVrIg/5ieJYI/loGIpG5d34Ha20r8cXkRgqAtlN68ZoR0L36tqCbXXsGg9xSjnVmX5w9rfiVx4GpTiSQvanuKpCq1yvkW491Tye/TzMtKz6QeRnZNk2dLIuHRo8t0EwdjQ+oQby6gIkHp/hnH8CejVvTAo21osX97KucW79pK3qXuw==';
-        $encSecKey = '8777f9ee03bc17ca48ae20b210ff0c14c49a2fcc2985c5e0cb50f9938948db4786e8ff4638b98c2ce17d11d5f1590b953991ffe9a2a75e496beb16220d7d01c3d68f472c4b495bf278156d970d350cb207620b87bf405bd936d19f4c95dbdffb73c2e000b59f910d9508b2f392ac0fbba7932544496757ead1ce705b6877bf87';
-        $UA = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.157 Safari/537.36';
-        $MUSIC_U = Typecho_Widget::widget('Widget_Options')->plugin('cPlayer')->MUSIC_U;
-
         $return = false;
         $data = array(
-            'COOKIE' => 'appver=2.0.2',
-            'REFERER' => 'http://music.163.com/'
+            'COOKIE' => 'appver=2.0.2;',
+            'REFERER' => 'http://music.163.com/',
+            'USERAGENT' => 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.157 Safari/537.36'
         );
         switch ( $type ) {
             case 'song': $url = "http://music.163.com/api/song/detail/?ids=[$id]"; $key = 'songs'; break;
@@ -489,13 +495,10 @@ EOF;
             case 'artist': $url = "http://music.163.com/api/artist/$id?id=$id"; $key = 'artist'; break;
             case 'collect': $url = "http://music.163.com/api/playlist/detail?id=$id"; $key = 'result'; break;
             case 'recommend': 
-                $url = "http://music.163.com/weapi/v1/discovery/recommend/songs?csrf_token=";
-                $data['POST'] = array(
-                    'params' => $params,
-                    'encSecKey' => $encSecKey
-                );
-                $data['COOKIE'] = $MUSIC_U;
-                $data['USERAGENT'] = $UA;
+                $url = "http://music.163.com/api/discovery/recommend/songs";
+                $MUSIC_U = Typecho_Widget::widget('Widget_Options')->plugin('cPlayer')->MUSIC_U;
+                $data['COOKIE'] .= $MUSIC_U;
+
                 $key = 'recommend';
                 break;
             default: $url = "http://music.163.com/api/song/detail/?ids=[$id]"; $key = 'songs';
@@ -692,14 +695,12 @@ EOF;
         }
     }
 
+
     /**
      * url抓取,两种方式,优先用curl,当主机不支持curl时候采用file_get_contents
      * 参数$data为数组，结构类似于
      * $data = array(
-            'POST'       => array(
-                    'params'    => '',
-                    'encSecKey' => ''
-                ),
+            'POST'       => '',
             'COOKIE'     => 'appver=2.0.2',
             'REFERER'    => 'http://music.163.com/',
             'HTTPHEADER' => '',
@@ -794,7 +795,7 @@ EOF;
         return $atts;
     }
 
-    
+
     /**
      * Retrieve the shortcode regular expression for searching.
      *
@@ -853,6 +854,8 @@ EOF;
         . ')'
         . '(\\]?)';                          // 6: Optional second closing brocket for escaping shortcodes: [[tag]]
     }
+
+
     /**
      * Tests for file writability
      *
@@ -898,5 +901,4 @@ EOF;
         fclose($fp);
         return TRUE;
     }
-
 }
