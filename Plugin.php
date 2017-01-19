@@ -7,7 +7,7 @@ date_default_timezone_set('PRC');
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.2.0
+ * @version 1.2.1
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -16,7 +16,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 {
     //此变量用以在一个变量中区分多个播放器实例
     protected static $playerID = 0;
-    protected static $VERSION = '1.2.0';
+    protected static $VERSION = '1.2.1';
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
      * 
@@ -149,21 +149,21 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 	{
 		?>
 	<style>
-	    #cft-shell{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5)z-index:999;}#cft-shell-tips{position:absolute;top:0;height:1.8em;line-height:1.8em;display:block;font-size:1.8em;left:0;margin:0;width:100%;z-index:10;text-align:center;background:#e6efc2;color:#264409;transition:top .2s}#cft-shell-content{position:absolute;top:50%;transform:translate3D(0,-50%,0);-webkit-transform:translate3D(0,-50%,0);width:100%}.media-modal-content{width:auto;max-width:80%;margin:0 auto;padding:15px 0;background-color:#f3f3f3}#cft-shell-close{float:right;margin-right:15px;color:#333;width:20px;text-align:center;font-weight:bold}.media-frame-title{padding-left:20px}.media-frame-router{padding-left:20px}.media-router a{display:inline-block;padding:2px 6px;border:1px;border-style:solid solid none;border-radius:2px;border-color:#f3f3f3;outline:0;text-decoration:none}.media-router a.active{display:inline-block;padding:2px 6px;border:1px;border-style:solid solid none;border-radius:2px;border-color:#ccc;outline:0;text-decoration:none;color:#333;background-color:#fefefe}.media-frame-content{padding:20px;background-color:#fefefe;max-height:600px;overflow-y:auto}.cft-ul{list-style:none;padding:0;margin:0}.cft-ul li{display:none;margin:0;padding:0}.cft-ul li.active{display:block;margin:0;padding:0}.cft-li input[type=text]{right:0;width:100%;padding:4px;margin:4px 0}div>label{margin-right:0 4px 0 0}.cft-textarea{width:100%;margin-top:0;margin-bottom:0;height:150px}.media-frame-toolbar{overflow:hidden;margin:20px 20px 0 20px}#cft-shell-insert{float:right}div.songs{background-color:#eee;padding:10px 5px;margin-bottom:20px;border:1px;border-color:#ccc;border-style:dashed}a.songs_add{font-size:3em;line-height:1em;color:#666;background-color:#eee;width:100%;margin:.2em 0 0 0;display:inline-block;text-align:center;outline:0;text-decoration:none;transition:.2s}a.songs_add:hover{background-color:#ccc}media-frame-content::-webkit-scrollbar-track-piece{background:#eee}.media-frame-content::-webkit-scrollbar{width:5px;height:5px}.media-frame-content::-webkit-scrollbar-thumb{height:40px;background-color:#ccc;border-radius:1px}.media-frame-content::-webkit-scrollbar-thumb:hover{background-color:#bbb}
+	    #cft-shell{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);z-index:999;}#cft-shell-tips{position:absolute;top:0;height:1.8em;line-height:1.8em;display:block;font-size:1.8em;left:0;margin:0;width:100%;z-index:10;text-align:center;background:#e6efc2;color:#264409;transition:top .2s}#cft-shell-content{position:absolute;top:50%;transform:translate3D(0,-50%,0);-webkit-transform:translate3D(0,-50%,0);width:100%}.media-modal-content{width:auto;max-width:80%;margin:0 auto;padding:15px 0;background-color:#f3f3f3}#cft-shell-close{float:right;margin-right:15px;color:#333;width:20px;text-align:center;font-weight:bold}.media-frame-title{padding-left:20px}.media-frame-router{padding-left:20px}.media-router a{display:inline-block;padding:2px 6px;border:1px;border-style:solid solid none;border-radius:2px;border-color:#f3f3f3;outline:0;text-decoration:none}.media-router a.active{display:inline-block;padding:2px 6px;border:1px;border-style:solid solid none;border-radius:2px;border-color:#ccc;outline:0;text-decoration:none;color:#333;background-color:#fefefe}.media-frame-content{padding:20px;background-color:#fefefe;max-height:600px;overflow-y:auto}.cft-ul{list-style:none;padding:0;margin:0}.cft-ul li{display:none;margin:0;padding:0}.cft-ul li.active{display:block;margin:0;padding:0}.cft-li input[type=text]{right:0;width:100%;padding:4px;margin:4px 0}div>label{margin-right:0 4px 0 0}.cft-textarea{width:100%;margin-top:0;margin-bottom:0;height:150px}.media-frame-toolbar{overflow:hidden;margin:20px 20px 0 20px}#cft-shell-insert{float:right}div.songs{background-color:#eee;padding:10px 5px;margin-bottom:20px;border:1px;border-color:#ccc;border-style:dashed}a.songs_add{font-size:3em;line-height:1em;color:#666;background-color:#eee;width:100%;margin:.2em 0 0 0;display:inline-block;text-align:center;outline:0;text-decoration:none;transition:.2s}a.songs_add:hover{background-color:#ccc}media-frame-content::-webkit-scrollbar-track-piece{background:#eee}.media-frame-content::-webkit-scrollbar{width:5px;height:5px}.media-frame-content::-webkit-scrollbar-thumb{height:40px;background-color:#ccc;border-radius:1px}.media-frame-content::-webkit-scrollbar-thumb:hover{background-color:#bbb}
 	</style>
 	<div id="cft-shell" style="display:none">
 	    <div id="cft-shell-tips"></div>
 		<div id="cft-shell-content" class="media-modal">
 			<div class="media-modal-content">
-				<a id="cft-shell-close" class="media-modal-close" href="javascript:;">X</a>
+				<a id="cft-shell-close" class="media-modal-close" href="javascript:void(0);" onclick="return false;">X</a>
 				<div id="cft-shell-body">
 					<div class="media-frame-title">
 						<h2>插入音乐</h2>
 					</div>
 					<div class="media-frame-router">
 						<div class="media-router">
-							<a href="javascript:;" class="media-menu-item" id="media-menu-netease">网易云音乐</a>
-							<a href="javascript:;" class="media-menu-item active" id="media-menu-local">本地音乐</a>
+							<a href="javascript:void(0);" class="media-menu-item" id="media-menu-netease" onclick="return false;">网易云音乐</a>
+							<a href="javascript:void(0);" class="media-menu-item active" id="media-menu-local" onclick="return false;">本地音乐</a>
 						</div>
 					</div>
 					<div class="media-frame-content">
@@ -179,7 +179,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 								<textarea class="cft-textarea large-text code" cols="30" rows="9" placeholder="输入对应ID，单曲每行一个，专辑、歌单、艺人等每次仅能输入一个"></textarea>
 							</li>
 							<li class="cft-li active" data-type="local">
-								<a class="songs_add" href="javascript:;">+</a>
+								<a class="songs_add" href="javascript:void(0);" onclick="return false;">+</a>
 							</li>
 						</ul>
 					</div>
@@ -250,7 +250,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 			});
 			var songs_div = `
 <div class="songs">
-    <a href="javascript:;" style="float: right;color: #333;" onclick="$(this).parent().remove()">X</a>
+    <a href="javascript:void(0);" style="float: right;color: #333;" onclick="$(this).parent().remove();return false;">X</a>
 	歌曲链接：<input type="text" name="song_url" placeholder="http://…">
 	标题：<input type="text" name="song_name" placeholder="好久不见" style="width: 180px">
 	艺术家：<input type="text" name="song_artist" placeholder="陈奕迅" style="width: 180px"><br>
