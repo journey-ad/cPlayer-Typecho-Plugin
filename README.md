@@ -3,13 +3,14 @@ A typecho plugin for the beautiful html5 music player https://github.com/Copay/c
 
 [Demo](https://imjad.cn/archives/none/cplayer-test)
 
-![demo](https://img.imjad.cn/images/2017/01/15/Screenshotfrom2017-01-1513-45-40.png)
+![cftdemo](https://img.imjad.cn/images/2017/01/19/sp170119_220731.png)
 ## 介绍
 1. 通过简短的代码在文章或页面中插入漂亮的Html5播放器
-2. 自动解析lrc链接，可根据歌曲名和歌手名自动查找封面并生成缓存
-3. 支持网易云音乐单曲、歌单、专辑、歌手id的解析
-4. 网易云音乐返回结果支持https
-5. 与cPlayer保持同步更新
+2. 便捷的配置窗口，不用再手动填代码啦
+3. 自动解析lrc链接，可根据歌曲名和歌手名自动查找封面并生成缓存
+4. 支持网易云音乐单曲、歌单、专辑、歌手id的解析
+5. 网易云音乐返回结果支持https
+6. 与cPlayer保持同步更新
 
 ## 声明
 本插件仅供个人学习研究使用，请勿将其用作商业用途，音乐版权归网易云音乐 music.163.com 所有。
@@ -22,7 +23,7 @@ A typecho plugin for the beautiful html5 music player https://github.com/Copay/c
 Download ZIP, 解压，将 cPlayer-Typecho-Plugin-master 重命名为 cPlayer ，之后上传到你博客中的 /usr/plugins 目录，在后台启用即可
 
 ## 使用方法
-在文章或页面中加入下方格式的短代码即可：
+在文章或页面中点击编辑器中的插入音乐按钮（目前仅支持原生编辑器）按提示配置，或手动加入下方格式的短代码即可：
 
 #### 调用格式
 
@@ -47,7 +48,7 @@ example:
 ##### 多首歌曲：
 
 ```
-[player 属性1="值1" 属性2="值2" 属性3="值3"]
+[player]
 [mp3 歌曲属性1="值1" 歌曲属性2="值2" 歌曲属性3="值3"/]
 [mp3 歌曲属性1="值1" 歌曲属性2="值2" 歌曲属性3="值3"][lrc]歌词[/lrc][tlrc]歌词翻译[/tlrc][/mp3]
 [/player]
