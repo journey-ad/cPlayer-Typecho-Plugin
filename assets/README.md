@@ -1,4 +1,4 @@
-# cPlayer 
+﻿# cPlayer 
 
 __Warning: Loaded well in Internet Explorer 10+, FireFox, Chrome, Edge and so on...(Modern Browser like.)__
 
@@ -142,3 +142,7 @@ cp.on("slideLyric",([showed])=>{
 ## DEMO
 
 [Click Here to See the Demo](http://cplayer.js.org)
+
+## Plugins
+
+Jad's cPlayer-Typecho-Plugin: [Click here](https://github.com/journey-ad/cPlayer-Typecho-Plugin)

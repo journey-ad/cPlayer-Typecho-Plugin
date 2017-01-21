@@ -7,7 +7,7 @@ date_default_timezone_set('PRC');
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.2.2
+ * @version 1.2.3
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -16,7 +16,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 {
     //此变量用以在一个变量中区分多个播放器实例
     protected static $playerID = 0;
-    protected static $VERSION = '1.2.2';
+    protected static $VERSION = '1.2.3';
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
      * 
@@ -704,17 +704,21 @@ EOF;
         $listexpire = Typecho_Widget::widget('Widget_Options')->plugin('cPlayer')->listexpire;
         if ($listexpire === null) $listexpire = 43200;
         $listexpire = (int)$listexpire;
-        //缓存过期或者找不到的时候则重新请求服务器（设置过期时间是因为歌单等信息可能会发生改变），否则返回缓存
-        if ($result && isset($result['data']) && ($type == "song" || (isset($result['time']) && (time() - $result['time']) < $listexpire))){
-            $data = $result['data'];
+
         //若类型为日推且当前时间为缓存时间第二天6:00之后则重新请求
-        }elseif ($result && isset($result['data']) && $type == "recommend" && date("d", time()) > date("d", $result['time']) && date("Hi", time()) > 600){
-            $data = self::get_netease_music($id, $type);
-            self::cache_set($key, array('time' => time(),'data' => $data));
+        if($result && isset($result['data']) && $type == "recommend"){
+            if(date("d", time()) > date("d", $result['time']) && date("Hi", time()) > 600){
+                $data = self::get_netease_music($id, $type);
+                self::cache_set($key, array('time' => time(),'data' => $data));
+            }else $data = $result['data'];
+        //缓存过期或者找不到的时候则重新请求服务器（设置过期时间是因为歌单等信息可能会发生改变），否则返回缓存
+        }elseif ($result && isset($result['data']) && ($type == "song" || (isset($result['time']) && (time() - $result['time']) < $listexpire))){
+            $data = $result['data'];
         }else{
             $data = self::get_netease_music($id, $type);
             self::cache_set($key, array('time' => time(),'data' => $data));
         }
+
         if (empty($data['trackList'])) return false;
         $return = array();
         foreach ($data['trackList'] as $v){
