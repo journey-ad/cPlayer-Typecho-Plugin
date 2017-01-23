@@ -7,7 +7,7 @@ date_default_timezone_set('PRC');
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.2.3
+ * @version 1.2.4
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -16,7 +16,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 {
     //此变量用以在一个变量中区分多个播放器实例
     protected static $playerID = 0;
-    protected static $VERSION = '1.2.3';
+    protected static $VERSION = '1.2.4';
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
      * 
@@ -148,7 +148,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 	{
 		?>
         <style>
-    	    li#wmd-music-button{font-size: 1.6em;line-height: 20px;height: 20px;width: 20px;}#cft-shell{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);z-index:999;}#cft-shell-tips{position:absolute;top:0;height:1.8em;line-height:1.8em;display:block;font-size:1.8em;left:0;margin:0;width:100%;z-index:10;text-align:center;background:#e6efc2;color:#264409;transition:top .2s}#cft-shell-content{position:absolute;top:50%;transform:translate3D(0,-50%,0);-webkit-transform:translate3D(0,-50%,0);width:100%;max-width: 70%;left: 15%;}.media-modal-content{width:auto;margin:0 auto;padding:15px 0;background-color:#f3f3f3}#cft-shell-close{float:right;margin-right:15px;color:#333;width:20px;text-align:center;font-weight:bold}.media-frame-title{padding-left:20px}.media-frame-router{padding-left:20px}.media-router a{display:inline-block;padding:2px 6px;border:1px;border-style:solid solid none;border-radius:2px;border-color:#f3f3f3;outline:0;text-decoration:none}.media-router a.active{display:inline-block;padding:2px 6px;border:1px;border-style:solid solid none;border-radius:2px;border-color:#ccc;outline:0;text-decoration:none;color:#333;background-color:#fefefe}.media-frame-content{padding:20px;background-color:#fefefe;max-height:600px;overflow-y:auto}.cft-ul{list-style:none;padding:0;margin:0}.cft-ul li{display:none;margin:0;padding:0}.cft-ul li.active{display:block;margin:0;padding:0}.cft-li input[type=text]{right:0;width:100%;padding:4px;margin:4px 0}div>label{margin-right:0 4px 0 0}.cft-textarea{width:100%;margin-top:0;margin-bottom:0;height:150px}.media-frame-toolbar{overflow:hidden;margin:20px 20px 0 20px}#cft-shell-insert{float:right}div.media-local-songs{background-color:#eee;padding:10px 5px;margin-bottom:20px;border:1px;border-color:#ccc;border-style:dashed}a.media-local-songs-add{font-size:3em;line-height:1em;color:#666;background-color:#eee;width:100%;margin:.2em 0 0 0;display:inline-block;text-align:center;outline:0;text-decoration:none;transition:.2s}a.media-local-songs-add:hover{background-color:#ccc}#media-toolbar-code{background-color:#fefefe;padding:4px;margin-bottom:10px;height:120px;max-height:120px;width:100%;display:none}media-frame-content::-webkit-scrollbar-track-piece{background:#eee}.media-frame-content::-webkit-scrollbar{width:5px;height:5px}.media-frame-content::-webkit-scrollbar-thumb{height:40px;background-color:#ccc;border-radius:1px}.media-frame-content::-webkit-scrollbar-thumb:hover{background-color:#bbb}
+    	    li#wmd-music-button{font-size: 20px;line-height: 20px;height: 20px;width: 20px;}#cft-shell{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);z-index:999;}#cft-shell-tips{position:absolute;top:0;height:1.8em;line-height:1.8em;display:block;font-size:1.8em;left:0;margin:0;width:100%;z-index:10;text-align:center;background:#e6efc2;color:#264409;transition:top .2s}#cft-shell-content{position:absolute;top:50%;transform:translate3D(0,-50%,0);-webkit-transform:translate3D(0,-50%,0);width:100%;max-width: 70%;left: 15%;}.media-modal-content{width:auto;margin:0 auto;padding:15px 0;background-color:#f3f3f3}#cft-shell-close{float:right;margin-right:15px;color:#333;width:20px;text-align:center;font-weight:bold}.media-frame-title{padding-left:20px}.media-frame-router{padding-left:20px}.media-router a{display:inline-block;padding:2px 6px;border:1px;border-style:solid solid none;border-radius:2px;border-color:#f3f3f3;outline:0;text-decoration:none}.media-router a.active{display:inline-block;padding:2px 6px;border:1px;border-style:solid solid none;border-radius:2px;border-color:#ccc;outline:0;text-decoration:none;color:#333;background-color:#fefefe}.media-frame-content{padding:20px;background-color:#fefefe;max-height:600px;overflow-y:auto}.cft-ul{list-style:none;padding:0;margin:0}.cft-ul li{display:none;margin:0;padding:0}.cft-ul li.active{display:block;margin:0;padding:0}.cft-li input[type=text]{right:0;width:100%;padding:4px;margin:4px 0}div>label{margin-right:0 4px 0 0}.cft-textarea{width:100%;margin-top:0;margin-bottom:0;height:150px}.media-frame-toolbar{overflow:hidden;margin:20px 20px 0 20px}#cft-shell-insert{float:right}div.media-local-songs{background-color:#eee;padding:10px 5px;margin-bottom:20px;border:1px;border-color:#ccc;border-style:dashed}a.media-local-songs-add{font-size:3em;line-height:1em;color:#666;background-color:#eee;width:100%;margin:.2em 0 0 0;display:inline-block;text-align:center;outline:0;text-decoration:none;transition:.2s}a.media-local-songs-add:hover{background-color:#ccc}#media-toolbar-code{background-color:#fefefe;padding:4px;margin-bottom:10px;height:120px;max-height:120px;width:100%;display:none}media-frame-content::-webkit-scrollbar-track-piece{background:#eee}.media-frame-content::-webkit-scrollbar{width:5px;height:5px}.media-frame-content::-webkit-scrollbar-thumb{height:40px;background-color:#ccc;border-radius:1px}.media-frame-content::-webkit-scrollbar-thumb:hover{background-color:#bbb}
     	</style>
     	<div id="cft-shell" style="display:none">
     	    <div id="cft-shell-tips"></div>
@@ -440,7 +440,7 @@ EOF;
 "use strict";
 (function(){
 var len = cPlayerOptions.length;
-for(let i=0;i<len;i++){
+for(var i=0;i<len;i++){
     var element = document.getElementById('player' + cPlayerOptions[i]['id'])
     while (element.hasChildNodes()) {
         element.removeChild(element.firstChild);
