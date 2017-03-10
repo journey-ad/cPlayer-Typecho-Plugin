@@ -7,7 +7,7 @@ date_default_timezone_set('PRC');
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.2.4
+ * @version 1.2.5
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -16,7 +16,8 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 {
     //此变量用以在一个变量中区分多个播放器实例
     protected static $playerID = 0;
-    protected static $VERSION = '1.2.4';
+    protected static $VERSION = '1.2.5';
+    protected static $INTEGRITY = 'sha256-k1ocCdwGYdG1lwhqGFhqe5G40e7wm4cbapHtYi+3Rc4='; //commit#016ec4c
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
      * 
@@ -28,8 +29,8 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
     {
         Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx = array('cPlayer_Plugin','playerparse');
         Typecho_Plugin::factory('Widget_Abstract_Contents')->excerptEx = array('cPlayer_Plugin','playerparse');
-		Typecho_Plugin::factory('admin/write-post.php')->bottom = array('cPlayer_Plugin', 'Insert');
-		Typecho_Plugin::factory('admin/write-page.php')->bottom = array('cPlayer_Plugin', 'Insert');
+        Typecho_Plugin::factory('admin/write-post.php')->bottom = array('cPlayer_Plugin', 'Insert');
+        Typecho_Plugin::factory('admin/write-page.php')->bottom = array('cPlayer_Plugin', 'Insert');
         Typecho_Plugin::factory('Widget_Archive')->header = array('cPlayer_Plugin','playercss');
         Typecho_Plugin::factory('Widget_Archive')->footer = array('cPlayer_Plugin','footerjs');
         $info = self::is_really_writable(dirname(__FILE__)."/cache") ? "插件启用成功！！" : "cPlayer插件目录的cache目录不可写，可能会导致博客加载缓慢！"; 
@@ -144,90 +145,90 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
      * @access public
      * @return void
      */
-	public static function Insert()
-	{
-		?>
+    public static function Insert()
+    {
+        ?>
         <style>
-    	    li#wmd-music-button{font-size: 20px;line-height: 20px;height: 20px;width: 20px;}#cft-shell{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);z-index:999;}#cft-shell-tips{position:absolute;top:0;height:1.8em;line-height:1.8em;display:block;font-size:1.8em;left:0;margin:0;width:100%;z-index:10;text-align:center;background:#e6efc2;color:#264409;transition:top .2s}#cft-shell-content{position:absolute;top:50%;transform:translate3D(0,-50%,0);-webkit-transform:translate3D(0,-50%,0);width:100%;max-width: 70%;left: 15%;}.media-modal-content{width:auto;margin:0 auto;padding:15px 0;background-color:#f3f3f3}#cft-shell-close{float:right;margin-right:15px;color:#333;width:20px;text-align:center;font-weight:bold}.media-frame-title{padding-left:20px}.media-frame-router{padding-left:20px}.media-router a{display:inline-block;padding:2px 6px;border:1px;border-style:solid solid none;border-radius:2px;border-color:#f3f3f3;outline:0;text-decoration:none}.media-router a.active{display:inline-block;padding:2px 6px;border:1px;border-style:solid solid none;border-radius:2px;border-color:#ccc;outline:0;text-decoration:none;color:#333;background-color:#fefefe}.media-frame-content{padding:20px;background-color:#fefefe;max-height:600px;overflow-y:auto}.cft-ul{list-style:none;padding:0;margin:0}.cft-ul li{display:none;margin:0;padding:0}.cft-ul li.active{display:block;margin:0;padding:0}.cft-li input[type=text]{right:0;width:100%;padding:4px;margin:4px 0}div>label{margin-right:0 4px 0 0}.cft-textarea{width:100%;margin-top:0;margin-bottom:0;height:150px}.media-frame-toolbar{overflow:hidden;margin:20px 20px 0 20px}#cft-shell-insert{float:right}div.media-local-songs{background-color:#eee;padding:10px 5px;margin-bottom:20px;border:1px;border-color:#ccc;border-style:dashed}a.media-local-songs-add{font-size:3em;line-height:1em;color:#666;background-color:#eee;width:100%;margin:.2em 0 0 0;display:inline-block;text-align:center;outline:0;text-decoration:none;transition:.2s}a.media-local-songs-add:hover{background-color:#ccc}#media-toolbar-code{background-color:#fefefe;padding:4px;margin-bottom:10px;height:120px;max-height:120px;width:100%;display:none}media-frame-content::-webkit-scrollbar-track-piece{background:#eee}.media-frame-content::-webkit-scrollbar{width:5px;height:5px}.media-frame-content::-webkit-scrollbar-thumb{height:40px;background-color:#ccc;border-radius:1px}.media-frame-content::-webkit-scrollbar-thumb:hover{background-color:#bbb}
-    	</style>
-    	<div id="cft-shell" style="display:none">
-    	    <div id="cft-shell-tips"></div>
-    		<div id="cft-shell-content" class="media-modal">
-    			<div class="media-modal-content">
-    				<a id="cft-shell-close" class="media-modal-close" href="javascript:void(0);" onclick="return false;">X</a>
-    				<div id="cft-shell-body">
-    					<div class="media-frame-title">
-    						<h2>插入音乐</h2>
-    					</div>
-    					<div class="media-frame-router">
-    						<div class="media-router">
-    							<a href="javascript:void(0);" class="media-menu-item" id="media-menu-netease" onclick="return false;">网易云音乐</a>
-    							<a href="javascript:void(0);" class="media-menu-item active" id="media-menu-local" onclick="return false;">本地音乐</a>
-    						</div>
-    					</div>
-    					<div class="media-frame-content">
-    						<ul class="cft-ul">
-    							<li class="cft-li" data-type="netease">
-    								<div>
-    									<label><input type="radio" name="netease_type" value="netease_songlist" checked>单曲</label>
-    									<label><input type="radio" name="netease_type" value="netease_album">专辑</label>
-    									<label><input type="radio" name="netease_type" value="netease_playlist">歌单</label>
-    									<label><input type="radio" name="netease_type" value="netease_artist">艺人</label>
-    									<label><input type="radio" name="netease_type" value="netease_recommend">日推</label>
-    								</div>
-    								<textarea class="cft-textarea large-text code" cols="30" rows="9" placeholder="输入对应ID，单曲每行一个，专辑、歌单、艺人等每次仅能输入一个"></textarea>
-    							</li>
-    							<li class="cft-li active" data-type="local">
-    								<a class="media-local-songs-add" href="javascript:void(0);" onclick="return false;">+</a>
-    							</li>
-    						</ul>
-    					</div>
-    					<div class="media-frame-toolbar">
-    						<div class="media-toolbar">
-    						    <textarea id="media-toolbar-code"></textarea>
-    							<div class="media-toolbar-primary">
-    								<button class="btn primary" id="cft-shell-insert">插入至文章</button>
-    							</div>
-    						</div>
-    					</div>
-    				</div>
-    			</div>
-    		</div>
-    		</div>
-    	</div>
-		<script type="text/javascript">
-		$(function() {
-			/* 判断是否为默认编辑器插入音乐按钮 */
-			if($('#wmd-button-row').length>0) {
-				$('#wmd-button-row').prepend('<li class="wmd-button" id="wmd-music-button" title="插入音乐 Alt + M">♫</li>');
-			}else if($('#text-editormd').length>0){
-			    $('#text-editormd').bind('click', function(e) {
-    				$('ul.editormd-menu').prepend('<li><a href="javascript:;" id="wmd-music-button" title="插入音乐 (Alt + M)" unselectable="on"><i class="fa fa-music" name="music" unselectable="on"></i></a></li>');
-    				if($('ul.editormd-menu li a#wmd-music-button').length > 0) $(this).unbind(e);
-    			});
-			}
-			else {
-				$('#text').before('<a id="wmd-music-button" title="插入音乐 Alt + M" href="javascript:void(0)" onclick="return false;">插入歌曲</a>');
-			}
-			/* 为编辑器按钮增加点击事件 */
-			$(document).on('click', '#wmd-music-button', function() {
-				$('#cft-shell').show();
-			});
-			$(document).on('click', '#cft-shell-close', function() {
-				$('#cft-shell').hide();
-			});
-			
-			/* 增加各种快捷键操作 */
-			$(document).on('keydown', function(e){	
-				
-				/* Alt+M 调出插件面板 */
-				if(e.altKey && e.keyCode == '77') 
-					$('#wmd-music-button').click();
+            li#wmd-music-button{font-size: 20px;line-height: 20px;height: 20px;width: 20px;}#cft-shell{position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);z-index:999;}#cft-shell-tips{position:absolute;top:0;height:1.8em;line-height:1.8em;display:block;font-size:1.8em;left:0;margin:0;width:100%;z-index:10;text-align:center;background:#e6efc2;color:#264409;transition:top .2s}#cft-shell-content{position:absolute;top:50%;transform:translate3D(0,-50%,0);-webkit-transform:translate3D(0,-50%,0);width:100%;max-width: 70%;left: 15%;}.media-modal-content{width:auto;margin:0 auto;padding:15px 0;background-color:#f3f3f3}#cft-shell-close{float:right;margin-right:15px;color:#333;width:20px;text-align:center;font-weight:bold}.media-frame-title{padding-left:20px}.media-frame-router{padding-left:20px}.media-router a{display:inline-block;padding:2px 6px;border:1px;border-style:solid solid none;border-radius:2px;border-color:#f3f3f3;outline:0;text-decoration:none}.media-router a.active{display:inline-block;padding:2px 6px;border:1px;border-style:solid solid none;border-radius:2px;border-color:#ccc;outline:0;text-decoration:none;color:#333;background-color:#fefefe}.media-frame-content{padding:20px;background-color:#fefefe;max-height:600px;overflow-y:auto}.cft-ul{list-style:none;padding:0;margin:0}.cft-ul li{display:none;margin:0;padding:0}.cft-ul li.active{display:block;margin:0;padding:0}.cft-li input[type=text]{right:0;width:100%;padding:4px;margin:4px 0}div>label{margin-right:0 4px 0 0}.cft-textarea{width:100%;margin-top:0;margin-bottom:0;height:150px}.media-frame-toolbar{overflow:hidden;margin:20px 20px 0 20px}#cft-shell-insert{float:right}div.media-local-songs{background-color:#eee;padding:10px 5px;margin-bottom:20px;border:1px;border-color:#ccc;border-style:dashed}a.media-local-songs-add{font-size:3em;line-height:1em;color:#666;background-color:#eee;width:100%;margin:.2em 0 0 0;display:inline-block;text-align:center;outline:0;text-decoration:none;transition:.2s}a.media-local-songs-add:hover{background-color:#ccc}#media-toolbar-code{background-color:#fefefe;padding:4px;margin-bottom:10px;height:120px;max-height:120px;width:100%;display:none}media-frame-content::-webkit-scrollbar-track-piece{background:#eee}.media-frame-content::-webkit-scrollbar{width:5px;height:5px}.media-frame-content::-webkit-scrollbar-thumb{height:40px;background-color:#ccc;border-radius:1px}.media-frame-content::-webkit-scrollbar-thumb:hover{background-color:#bbb}
+        </style>
+        <div id="cft-shell" style="display:none">
+            <div id="cft-shell-tips"></div>
+            <div id="cft-shell-content" class="media-modal">
+                <div class="media-modal-content">
+                    <a id="cft-shell-close" class="media-modal-close" href="javascript:void(0);" onclick="return false;">X</a>
+                    <div id="cft-shell-body">
+                        <div class="media-frame-title">
+                            <h2>插入音乐</h2>
+                        </div>
+                        <div class="media-frame-router">
+                            <div class="media-router">
+                                <a href="javascript:void(0);" class="media-menu-item" id="media-menu-netease" onclick="return false;">网易云音乐</a>
+                                <a href="javascript:void(0);" class="media-menu-item active" id="media-menu-local" onclick="return false;">本地音乐</a>
+                            </div>
+                        </div>
+                        <div class="media-frame-content">
+                            <ul class="cft-ul">
+                                <li class="cft-li" data-type="netease">
+                                    <div>
+                                        <label><input type="radio" name="netease_type" value="netease_songlist" checked>单曲</label>
+                                        <label><input type="radio" name="netease_type" value="netease_album">专辑</label>
+                                        <label><input type="radio" name="netease_type" value="netease_playlist">歌单</label>
+                                        <label><input type="radio" name="netease_type" value="netease_artist">艺人</label>
+                                        <label><input type="radio" name="netease_type" value="netease_recommend">日推</label>
+                                    </div>
+                                    <textarea class="cft-textarea large-text code" cols="30" rows="9" placeholder="输入对应ID，单曲每行一个，专辑、歌单、艺人等每次仅能输入一个"></textarea>
+                                </li>
+                                <li class="cft-li active" data-type="local">
+                                    <a class="media-local-songs-add" href="javascript:void(0);" onclick="return false;">+</a>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="media-frame-toolbar">
+                            <div class="media-toolbar">
+                                <textarea id="media-toolbar-code"></textarea>
+                                <div class="media-toolbar-primary">
+                                    <button class="btn primary" id="cft-shell-insert">插入至文章</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+        <script type="text/javascript">
+        $(function() {
+            /* 判断是否为默认编辑器插入音乐按钮 */
+            if($('#wmd-button-row').length>0) {
+                $('#wmd-button-row').prepend('<li class="wmd-button" id="wmd-music-button" title="插入音乐 Alt + M">♫</li>');
+            }else if($('#text-editormd').length>0){
+                $('#text-editormd').bind('click', function(e) {
+                    $('ul.editormd-menu').prepend('<li><a href="javascript:;" id="wmd-music-button" title="插入音乐 (Alt + M)" unselectable="on"><i class="fa fa-music" name="music" unselectable="on"></i></a></li>');
+                    if($('ul.editormd-menu li a#wmd-music-button').length > 0) $(this).unbind(e);
+                });
+            }
+            else {
+                $('#text').before('<a id="wmd-music-button" title="插入音乐 Alt + M" href="javascript:void(0)" onclick="return false;">插入歌曲</a>');
+            }
+            /* 为编辑器按钮增加点击事件 */
+            $(document).on('click', '#wmd-music-button', function() {
+                $('#cft-shell').show();
+            });
+            $(document).on('click', '#cft-shell-close', function() {
+                $('#cft-shell').hide();
+            });
+            
+            /* 增加各种快捷键操作 */
+            $(document).on('keydown', function(e){  
+                
+                /* Alt+M 调出插件面板 */
+                if(e.altKey && e.keyCode == '77') 
+                    $('#wmd-music-button').click();
 
-				/* ESC 关闭插件面板 */
-				if(e.keyCode == '27')
-					$('#cft-shell-close').click();
-			})
+                /* ESC 关闭插件面板 */
+                if(e.keyCode == '27')
+                    $('#cft-shell-close').click();
+            })
 
             $(document).ready(function(){
                 var $div = $("div#cft-shell-content");
@@ -259,75 +260,75 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
                 });
             })
 
-			$(document).on('click', '#media-menu-netease', function() {
-				$('#media-menu-local').removeClass('active');
-				$('.cft-li[data-type=local]').removeClass('active');
-				$('#media-menu-netease').addClass('active');
-				$('.cft-li[data-type=netease]').addClass('active');
-			});
-			$(document).on('click', '#media-menu-local', function() {
-				$('#media-menu-netease').removeClass('active');
-				$('.cft-li[data-type=netease]').removeClass('active');
-				$('#media-menu-local').addClass('active');
-				$('.cft-li[data-type=local]').addClass('active');
-			});
-			
-			$(document).on('click', '#cft-shell-insert', function() {
-				switch ($('.media-router').children().filter('.active')[0].id){
-				    case 'media-menu-netease':
-				        grin(parse_netease());
-				        break;
-				    case 'media-menu-local':
-				        grin(parse_local());
-				        break;
-				    default:
-				};
-			});
-			var songs_div = `
+            $(document).on('click', '#media-menu-netease', function() {
+                $('#media-menu-local').removeClass('active');
+                $('.cft-li[data-type=local]').removeClass('active');
+                $('#media-menu-netease').addClass('active');
+                $('.cft-li[data-type=netease]').addClass('active');
+            });
+            $(document).on('click', '#media-menu-local', function() {
+                $('#media-menu-netease').removeClass('active');
+                $('.cft-li[data-type=netease]').removeClass('active');
+                $('#media-menu-local').addClass('active');
+                $('.cft-li[data-type=local]').addClass('active');
+            });
+            
+            $(document).on('click', '#cft-shell-insert', function() {
+                switch ($('.media-router').children().filter('.active')[0].id){
+                    case 'media-menu-netease':
+                        grin(parse_netease());
+                        break;
+                    case 'media-menu-local':
+                        grin(parse_local());
+                        break;
+                    default:
+                };
+            });
+            var songs_div = `
 <div class="media-local-songs">
     <a href="javascript:void(0);" style="float: right;color: #333;" onclick="$(this).parent().remove();return false;">X</a>
-	歌曲链接：<input type="text" name="song_url" placeholder="http://…">
-	标题：<input type="text" name="song_name" placeholder="好久不见" style="width: 180px">
-	艺术家：<input type="text" name="song_artist" placeholder="陈奕迅" style="width: 180px"><br>
+    歌曲链接：<input type="text" name="song_url" placeholder="http://…">
+    标题：<input type="text" name="song_name" placeholder="好久不见" style="width: 180px">
+    艺术家：<input type="text" name="song_artist" placeholder="陈奕迅" style="width: 180px"><br>
     歌词：
     <textarea class="cft-textarea large-text lyric" cols="30" rows="9" placeholder="请输入lrc格式的歌词文本或歌词链接"></textarea><br>
     歌词翻译：
     <textarea class="cft-textarea large-text tlyric" cols="30" rows="9" placeholder="请输入lrc格式的歌词翻译文本或歌词翻译链接"></textarea>
 </div>
-`;			
-			$(document).on('click', 'a.media-local-songs-add', function() {
-				$(songs_div).insertBefore('a.media-local-songs-add');
-				$(".media-frame-content").animate({scrollTop:$(".media-frame-content")[0].scrollHeight}, 350,'linear');
-			})
-			$('a.media-local-songs-add').click();
-		})
-		$('#cft-shell-tips').text('请在下方填写相关内容').delay(3000).slideToggle();
-		function parse_netease(){
-		    switch ($("input[name='netease_type']:checked").val()){
-		        case 'netease_songlist':
-		            var songs = $('.cft-textarea').val().split('\n').toString();
-		            var code = "[player id='" + songs + "'/]\n"
-		            break;
-		        case 'netease_album':
-		            var album = $('.cft-textarea').val().toString();
-		            var code = "[player id='" + album + "' type='album'/]\n"
-		            break;
-		        case 'netease_playlist':
-		            var playlist = $('.cft-textarea').val().toString();
-		            var code = "[player id='" + playlist + "' type='collect'/]\n"
-		            break;
-		        case 'netease_artist':
-		            var artist = $('.cft-textarea').val().toString();
-		            var code = "[player id='" + artist + "' type='artist'/]\n"
-		            break;
-		        case 'netease_recommend':
-		            var code = "[player type='recommend'/]\n";
-		            break;
+`;          
+            $(document).on('click', 'a.media-local-songs-add', function() {
+                $(songs_div).insertBefore('a.media-local-songs-add');
+                $(".media-frame-content").animate({scrollTop:$(".media-frame-content")[0].scrollHeight}, 350,'linear');
+            })
+            $('a.media-local-songs-add').click();
+        })
+        $('#cft-shell-tips').text('请在下方填写相关内容').delay(3000).slideToggle();
+        function parse_netease(){
+            switch ($("input[name='netease_type']:checked").val()){
+                case 'netease_songlist':
+                    var songs = $('.cft-textarea').val().split('\n').toString();
+                    var code = "[player id='" + songs + "'/]\n"
+                    break;
+                case 'netease_album':
+                    var album = $('.cft-textarea').val().toString();
+                    var code = "[player id='" + album + "' type='album'/]\n"
+                    break;
+                case 'netease_playlist':
+                    var playlist = $('.cft-textarea').val().toString();
+                    var code = "[player id='" + playlist + "' type='collect'/]\n"
+                    break;
+                case 'netease_artist':
+                    var artist = $('.cft-textarea').val().toString();
+                    var code = "[player id='" + artist + "' type='artist'/]\n"
+                    break;
+                case 'netease_recommend':
+                    var code = "[player type='recommend'/]\n";
+                    break;
                 default:                
-		    }
-		    return code;
-		}
-		function parse_local(){
+            }
+            return code;
+        }
+        function parse_local(){
             var code_player = `[player]\n{mp3}[/player]\n`;
             var code_mp3 = `[mp3 url="{url}" artist="{artist}" name="{name}" {else}]\n[lrc]\n{lrc}\n[/lrc]\n[tlrc]\n{tlrc}\n[/tlrc]\n[/mp3]\n`;
             var mp3 = '';
@@ -362,47 +363,47 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
             var player = code_player.replace('{mp3}', mp3)
             return player;
             
-		}
-		
-		function isURL(str){
+        }
+        
+        function isURL(str){
             return !!str.match(/((http|ftp|https):\/\/([\w\-]+\.)+[\w\-]+(\/[\w\u4e00-\u9fa5\-\.\/?\@\%\!\&=\+\~\:\#\;\,]*)?)/ig);
         }
-		
-		function grin(tag) {
-			var myField;
-			if ($('textarea#text').css('display') == 'none'){
-			    $('#media-toolbar-code').val(tag);
-			    $('#media-toolbar-code').show();
-			    $('#cft-shell-tips').text('当前编辑器不支持自动插入，请手动复制').slideToggle().delay(5000).slideToggle();
-		    } else {
-				myField = document.getElementById('text');
-				if (document.selection) {
-    				myField.focus();
-    				sel = document.selection.createRange();
-    				sel.text = tag;
-    				myField.focus();
-    			}else if (myField.selectionStart || myField.selectionStart == '0') {
-    				var startPos = myField.selectionStart;
-    				var endPos = myField.selectionEnd;
-    				var cursorPos = startPos;
-    				myField.value = myField.value.substring(0, startPos)
-    				+ tag
-    				+ myField.value.substring(endPos, myField.value.length);
-    				cursorPos += tag.length;
-    				myField.focus();
-    				myField.selectionStart = cursorPos;
-    				myField.selectionEnd = cursorPos;
-    			} else {
-    				myField.value += tag;
-    				myField.focus();
-    			}
-    			$('#cft-shell-tips').text('代码已插入至文章内光标所在位置').slideToggle().delay(5000).slideToggle()
-			}
-		}
-		</script>
+        
+        function grin(tag) {
+            var myField;
+            if ($('textarea#text').css('display') == 'none'){
+                $('#media-toolbar-code').val(tag);
+                $('#media-toolbar-code').show();
+                $('#cft-shell-tips').text('当前编辑器不支持自动插入，请手动复制').slideToggle().delay(5000).slideToggle();
+            } else {
+                myField = document.getElementById('text');
+                if (document.selection) {
+                    myField.focus();
+                    sel = document.selection.createRange();
+                    sel.text = tag;
+                    myField.focus();
+                }else if (myField.selectionStart || myField.selectionStart == '0') {
+                    var startPos = myField.selectionStart;
+                    var endPos = myField.selectionEnd;
+                    var cursorPos = startPos;
+                    myField.value = myField.value.substring(0, startPos)
+                    + tag
+                    + myField.value.substring(endPos, myField.value.length);
+                    cursorPos += tag.length;
+                    myField.focus();
+                    myField.selectionStart = cursorPos;
+                    myField.selectionEnd = cursorPos;
+                } else {
+                    myField.value += tag;
+                    myField.focus();
+                }
+                $('#cft-shell-tips').text('代码已插入至文章内光标所在位置').slideToggle().delay(5000).slideToggle()
+            }
+        }
+        </script>
 
-		<?php
-	}
+        <?php
+    }
 
 
     /**
@@ -433,24 +434,47 @@ EOF;
     {
         $playerurl = Helper::options()->pluginUrl.'/cPlayer/assets/dist/';
         $VERSION = self::$VERSION;
+        $INTEGRITY = self::$INTEGRITY;
         echo <<<EOF
 <!-- cPlayer Start -->
-<script type="text/javascript" src="{$playerurl}cplayer.min.js?v={$VERSION}"></script>
-<script>
+<script async>
 "use strict";
 (function(){
-var len = cPlayerOptions.length;
-for(var i=0;i<len;i++){
-    var element = document.getElementById('player' + cPlayerOptions[i]['id'])
-    while (element.hasChildNodes()) {
-        element.removeChild(element.firstChild);
-    }
-    cPlayers[i] = new cPlayer({
-        element: element,
-        list: cPlayerOptions[i]['list'],
-        });
-};})();
-cPlayers = [];cPlayerOptions = [];
+var cp = function(){
+    var len = cPlayerOptions.length;
+    for(var i=0;i<len;i++){
+        var element = document.getElementById('player' + cPlayerOptions[i]['id'])
+        while (element.hasChildNodes()) {
+            element.removeChild(element.firstChild);
+        };
+        cPlayers[i] = new cPlayer({
+            element: element,
+            list: cPlayerOptions[i]['list'],
+            });
+    };
+    cPlayers = [];cPlayerOptions = [];
+};
+var script = document.createElement('script');
+script.type = "text/javascript";
+script.src = "{$playerurl}cplayer.min.js?v={$VERSION}";
+script.async = true;
+script.crossOrigin = "anonymous";
+script.integrity = "{$INTEGRITY}";
+if(script.readyState){  //IE
+    script.onreadystatechange = function(){
+        if (script.readyState == "loaded" ||
+            script.readyState == "complete"){
+            script.onreadystatechange = null;
+            cp();
+        }
+    };
+}else{  //Others
+    script.onload = function(){
+        cp();
+    };
+}
+document.head.appendChild(script);
+})();
 </script>
 <!-- cPlayer End -->
 EOF;
@@ -707,7 +731,7 @@ EOF;
 
         //若类型为日推且当前时间为缓存时间第二天6:00之后则重新请求
         if($result && isset($result['data']) && $type == "recommend"){
-            if(date("d", time()) > date("d", $result['time']) && date("Hi", time()) > 600){
+            if((date("m", time() > date("m", $result['time']))) || (date("d", time()) > date("d", $result['time']) && date("Hi", time()) > 600)){
                 $data = self::get_netease_music($id, $type);
                 self::cache_set($key, array('time' => time(),'data' => $data));
             }else $data = $result['data'];
