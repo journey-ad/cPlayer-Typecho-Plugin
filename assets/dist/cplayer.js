@@ -231,16 +231,6 @@ var cPlayer = function () {
 					}
 				}
 			});
-			/*rightTarget.push(options.target === that.__LIST__.timePoint 
-             	|| options.target === that.__LIST__.volumePoint); //Check if the focus of mouse is the `point circle`
-   rightTarget.push(options.target === that.__LIST__.timeLine
-             	|| options.target === that.__LIST__.volumeLine);
-   rightTarget.push((options.target === that.__LIST__.timePoint 
-             	|| options.target === that.__LIST__.volumePoint
-             	|| options.target === that.__LIST__.timeBody
-             	|| options.target === that.__LIST__.volumeBody
-             	|| options.target === that.__LIST__.timeLine
-             	|| options.target === that.__LIST__.volumeLine));*/
 			if (!rightTarget[2]) return; //Warning!!! rightTarget[2] checks if mouse focus on the percentage.
 			that.dragging.contain = true;
 			that.dragging.target = options.target;
@@ -340,7 +330,7 @@ var cPlayer = function () {
 		}).on("clickListPower", function () {
 			if (_this.hasList() && _this.__LIST__.list.classList.contains("invisible")) {
 				_this.showList();
-			} else if (_this.hasLyric() && !_this.__LIST__.list.classList.contains("invisible")) {
+			} else if (_this.hasList() && !_this.__LIST__.list.classList.contains("invisible")) {
 				_this.hideList();
 			}
 		}).on("clickVolumePower", function () {
@@ -351,21 +341,15 @@ var cPlayer = function () {
 			}
 		}).on("timeupdate", function () {
 			_this.updateTime();
-			if (_this.hasLyric(_this.now)) {
-				_this.slideLyric(_this.music.currentTime);
-			}
+			if (_this.hasLyric(_this.now)) _this.slideLyric(_this.music.currentTime);
 		}).on("volumechange", function () {
 			_this.volume(); //做更新界面用.
 		}).on("pause", function () {
 			_this.CBASE.replaceInner(_this.__LIST__.toggle, _this.SVG.playArrow);
-			//再赋值,更新内容.
-			//this.__LIST__.toggleIcon = this.CBASE.getByTagName("svg",this.__LIST__.toggle);
 		}).on("play", function () {
 			_this.CBASE.replaceInner(_this.__LIST__.toggle, _this.SVG.pause);
-			//再赋值,更新内容.
 			_this.__LIST__.toggleIcon = _this.CBASE.getByTagName("svg", _this.__LIST__.toggle);
 		}).on("ended", function () {
-			//this.__LIST__.lyricBody.style.transform = ""; 为了兼容性封装一遍
 			_this.CBASE.style(_this.__LIST__.lyricBody, "transform", "");
 			if (_this.options.list[_this.now].loop === true) {
 				_this.updateTime(0);
@@ -509,7 +493,7 @@ var cPlayer = function () {
 		value: function toggle() {
 			var now = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : this.now;
 
-			this.emitter.emit("toggle");
+			//this.emitter.emit("toggle");
 			var list = this.options.list[now],
 			    dom = this.__LIST__;
 			this.music.pause();
@@ -739,6 +723,11 @@ var cPlayer = function () {
 			if (!this.options.list[this.now].transLyric || !this.hasLyric(this.now)) return false;
 			this.transLock = !this.transLock;
 			this.refreshLyric(this.transLock);
+		}
+	}, {
+		key: "checkProcessor",
+		value: function checkProcessor(param, id) {
+			this.options.list[id];
 		}
 	}, {
 		key: "length",
@@ -978,5 +967,5 @@ var cContext = function () {
 	return cContext;
 }();
 if (window) window.cPlayer = cPlayer;
-console.log("\n%ccPlayer%cv2.4.5%c\n\n", "padding:7px;background:#cd3e45;font-family:'Sitka Heading';font-weight:bold;font-size:large;color:white", "padding:7px;background:#ff5450;font-family:'Sitka Text';font-style:italic;font-size:large;color:#eee", "");
+console.log("\n%ccPlayer%cv2.4.6%c\n\n", "padding:7px;background:#cd3e45;font-family:'Sitka Heading';font-weight:bold;font-size:large;color:white", "padding:7px;background:#ff5450;font-family:'Sitka Text';font-size:large;color:#eee", "");
 //# sourceMappingURL=cplayer.js.map

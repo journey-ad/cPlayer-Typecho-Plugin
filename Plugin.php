@@ -7,7 +7,7 @@ date_default_timezone_set('PRC');
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.2.5
+ * @version 1.2.6
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -16,8 +16,8 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 {
     //此变量用以在一个变量中区分多个播放器实例
     protected static $playerID = 0;
-    protected static $VERSION = '1.2.5';
-    protected static $INTEGRITY = 'sha256-k1ocCdwGYdG1lwhqGFhqe5G40e7wm4cbapHtYi+3Rc4='; //commit#016ec4c
+    protected static $VERSION = '1.2.6';
+    protected static $INTEGRITY = 'sha256-aj3GIFg2g57WRFL/qzhbtbfFbe5E1DxvLCEburEUtuI='; //commit#3cbba61
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
      * 
@@ -27,6 +27,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
      */
     public static function activate()
     {
+        Helper::addAction('cplayerapi', 'cPlayer_Action');
         Typecho_Plugin::factory('Widget_Abstract_Contents')->contentEx = array('cPlayer_Plugin','playerparse');
         Typecho_Plugin::factory('Widget_Abstract_Contents')->excerptEx = array('cPlayer_Plugin','playerparse');
         Typecho_Plugin::factory('admin/write-post.php')->bottom = array('cPlayer_Plugin', 'Insert');
@@ -48,6 +49,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
      */
     public static function deactivate()
     {
+        Helper::removeAction('cplayerapi');
         $files = glob('usr/plugins/cPlayer/cache/*');
         foreach($files as $file){
             if (is_file($file)){
@@ -69,6 +71,12 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
     {
         if (isset($_GET['action']) && $_GET['action'] == 'deletefile')
             self::deletefile();
+
+        $bitrate= new Typecho_Widget_Helper_Form_Element_Radio(
+            'bitrate', array('128'=>_t('流畅品质'),'192'=>_t('清晰品质'),'320'=>_t('高品质')), '192',
+            _t('默认音质'),
+            _t(''));
+        $form->addInput($bitrate);
 
         $listexpire = new Typecho_Widget_Helper_Form_Element_Text(
             'listexpire', null, '43200',
@@ -770,6 +778,7 @@ EOF;
     private static function get_netease_music($id=null, $type = 'song')
     {
         $return = false;
+        $dir=Typecho_Common::url('action/cplayerapi',Helper::options()->index);
         $data = array(
             'COOKIE' => 'appver=2.0.2;',
             'REFERER' => 'http://music.163.com/',
@@ -816,7 +825,7 @@ EOF;
                         'title' => $data['name'],
                         'album_name' => $data['album']['name'],
                         'artist' => $data['artists'][0]['name'],
-                        'location' => str_replace('http://m', '//p', $data['mp3Url']),
+                        'location' => "{$dir}?get=url&id={$data['id']}",
                         'pic' => str_replace('http://p', '//p', $data['album']['blurPicUrl'].'?param=128x128'),
                         'lyric' => $lyric['lyric'],
                         'tlyric' => $lyric['tlyric']
