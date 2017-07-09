@@ -214,6 +214,11 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
                     $('ul.editormd-menu').prepend('<li><a href="javascript:;" id="wmd-music-button" title="插入音乐 (Alt + M)" unselectable="on"><i class="fa fa-music" name="music" unselectable="on"></i></a></li>');
                     if($('ul.editormd-menu li a#wmd-music-button').length > 0) $(this).unbind(e);
                 });
+            }else if($('#text-wangEditor').length>0){
+                $('#text-wangEditor').bind('click', function(e) {
+                    $('div.w-e-toolbar').prepend('<div class="w-e-menu" id="wmd-music-button" title="插入音乐 (Alt + M)" style="z-index:2;"><i class="w-e-icon-music"><i></i></i></div>');
+                    if($('div.w-e-toolbar div.w-e-menu i.w-e-icon-music').length > 0) $(this).unbind(e);
+                });
             }
             else {
                 $('#text').before('<a id="wmd-music-button" title="插入音乐 Alt + M" href="javascript:void(0)" onclick="return false;">插入歌曲</a>');
