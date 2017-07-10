@@ -1,8 +1,4 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 if(!defined('__TYPECHO_ROOT_DIR__'))exit;
 class cPlayer_Action extends Typecho_Widget implements Widget_Interface_Do {
     public function execute(){}
@@ -25,6 +21,7 @@ class cPlayer_Action extends Typecho_Widget implements Widget_Interface_Do {
             $result = json_decode($cexecute);
             if ($result->code == 200){
                 $url = str_replace('http://m', 'https://m', $result->data[0]->url);
+                if(empty($url))$url = Helper::options()->pluginUrl.'/cPlayer/assets/empty.mp3';
                 $this->response->redirect($url);
             }
         }
