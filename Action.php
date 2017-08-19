@@ -20,7 +20,7 @@ class cPlayer_Action extends Typecho_Widget implements Widget_Interface_Do {
         if ($cexecute){
             $result = json_decode($cexecute);
             if ($result->code == 200){
-                $url = str_replace('http://m', 'https://m', $result->data[0]->url);
+                $url = preg_replace('/http:\/\/m(\d+)[a-zA-Z]*/', 'https://m$1', $result->data[0]->url);
                 if(empty($url))$url = Helper::options()->pluginUrl.'/cPlayer/assets/empty.mp3';
                 $this->response->redirect($url);
             }

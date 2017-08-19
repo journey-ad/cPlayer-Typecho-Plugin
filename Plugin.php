@@ -7,7 +7,7 @@ date_default_timezone_set('PRC');
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.2.6
+ * @version 1.2.7
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -16,7 +16,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 {
     //此变量用以在一个变量中区分多个播放器实例
     protected static $playerID = 0;
-    protected static $VERSION = '1.2.6';
+    protected static $VERSION = '1.2.7';
     protected static $INTEGRITY = 'sha256-aj3GIFg2g57WRFL/qzhbtbfFbe5E1DxvLCEburEUtuI='; //commit#3cbba61
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
