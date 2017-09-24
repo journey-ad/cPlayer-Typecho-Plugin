@@ -7,7 +7,7 @@ date_default_timezone_set('PRC');
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.2.7
+ * @version 1.2.8
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -16,8 +16,8 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 {
     //此变量用以在一个变量中区分多个播放器实例
     protected static $playerID = 0;
-    protected static $VERSION = '1.2.7';
-    protected static $INTEGRITY = 'sha256-aj3GIFg2g57WRFL/qzhbtbfFbe5E1DxvLCEburEUtuI='; //commit#3cbba61
+    protected static $VERSION = '1.2.8';
+    protected static $INTEGRITY = 'sha256-DfhgVlsA1ZGGnu67H8m4gS6sKim08dZwCO51NqiW54Q='; //commit#f9b593d
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
      * 
@@ -32,8 +32,8 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
         Typecho_Plugin::factory('Widget_Abstract_Contents')->excerptEx = array('cPlayer_Plugin','playerparse');
         Typecho_Plugin::factory('admin/write-post.php')->bottom = array('cPlayer_Plugin', 'Insert');
         Typecho_Plugin::factory('admin/write-page.php')->bottom = array('cPlayer_Plugin', 'Insert');
-        Typecho_Plugin::factory('Widget_Archive')->header = array('cPlayer_Plugin','playercss');
-        Typecho_Plugin::factory('Widget_Archive')->footer = array('cPlayer_Plugin','footerjs');
+        Typecho_Plugin::factory('Widget_Archive')->header = array('cPlayer_Plugin','header');
+        Typecho_Plugin::factory('Widget_Archive')->footer = array('cPlayer_Plugin','footer');
         $info = self::is_really_writable(dirname(__FILE__)."/cache") ? "插件启用成功！！" : "cPlayer插件目录的cache目录不可写，可能会导致博客加载缓慢！"; 
         return _t($info);
     }
@@ -420,17 +420,15 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 
 
     /**
-     * 头部css挂载,并定义参数的变量
+     * 初始化变量
      * 
      * @return void
      */
-    public static function playercss()
+    public static function header()
     {
-        $playerurl = Helper::options()->pluginUrl.'/cPlayer/assets/dist/';
         $VERSION = self::$VERSION;
         echo <<<EOF
 <!-- cPlayer Start -->
-<link rel="stylesheet" type="text/css" href="{$playerurl}cplayer.min.css?v={$VERSION}" />
 <script>var cPlayers = [];var cPlayerOptions = [];</script>
 <!-- cPlayer End -->
 EOF;
@@ -438,12 +436,12 @@ EOF;
 
 
     /**
-     * 尾部js，解析文章中给header的播放器变量添加的播放器参数并生成播放器的html
+     * 尾部解析播放器属性并构造播放器
      *
      *
      * @return void
      */
-    public static function footerjs()
+    public static function footer()
     {
         $playerurl = Helper::options()->pluginUrl.'/cPlayer/assets/dist/';
         $VERSION = self::$VERSION;
@@ -469,7 +467,7 @@ var cp = function(){
 };
 var script = document.createElement('script');
 script.type = "text/javascript";
-script.src = "{$playerurl}cplayer.min.js?v={$VERSION}";
+script.src = "{$playerurl}cplayer.js?v={$VERSION}";
 script.async = true;
 script.crossOrigin = "anonymous";
 script.integrity = "{$INTEGRITY}";
@@ -825,11 +823,16 @@ EOF;
                     //获取歌词
                     $lyric = self::get_netease_lyric($data['id']);
 
+                    unset($artists);
+                    foreach($data['artists'] as $v){
+                        $artists .= $v['name'] . '/';
+                    }
+
                     $list[$data['id']] = array(
                         'song_id' => $data['id'],
                         'title' => $data['name'],
                         'album_name' => $data['album']['name'],
-                        'artist' => $data['artists'][0]['name'],
+                        'artist' => substr($artists, 0, -1),
                         'location' => "{$dir}?get=url&id={$data['id']}",
                         'pic' => str_replace('http://p', '//p', $data['album']['blurPicUrl'].'?param=128x128'),
                         'lyric' => $lyric['lyric'],

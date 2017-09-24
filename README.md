@@ -1,5 +1,5 @@
 # cPlayer-Typecho-Plugin
-A typecho plugin for the beautiful html5 music player https://github.com/Copay/cPlayer
+A typecho plugin for the beautiful html5 music player https://github.com/MoePlayer/cPlayer/tree/f9b593dcd89395f9d7dd08ccda428f7628ab9ab2
 
 [Demo](https://imjad.cn/archives/none/cplayer-test)
 
@@ -23,7 +23,7 @@ A typecho plugin for the beautiful html5 music player https://github.com/Copay/c
 Download ZIP, 解压，将 cPlayer-Typecho-Plugin-master 重命名为 cPlayer ，之后上传到你博客中的 /usr/plugins 目录，在后台启用即可
 
 ## 使用方法
-在文章或页面中点击编辑器中的插入音乐按钮（目前仅支持原生编辑器）按提示配置，或手动加入下方格式的短代码即可：
+在文章或页面中点击编辑器中的插入音乐按钮（目前仅支持原生编辑器/EditorMD/wangEditor）按提示配置，或手动加入下方格式的短代码即可：
 
 #### 调用格式
 
