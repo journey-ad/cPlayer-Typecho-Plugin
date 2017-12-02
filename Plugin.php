@@ -7,7 +7,7 @@ date_default_timezone_set('PRC');
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.2.8
+ * @version 1.2.9
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -16,7 +16,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 {
     //此变量用以在一个变量中区分多个播放器实例
     protected static $playerID = 0;
-    protected static $VERSION = '1.2.8';
+    protected static $VERSION = '1.2.9';
     protected static $INTEGRITY = 'sha256-DfhgVlsA1ZGGnu67H8m4gS6sKim08dZwCO51NqiW54Q='; //commit#f9b593d
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
@@ -791,7 +791,19 @@ EOF;
             case 'song': $url = "http://music.163.com/api/song/detail/?ids=[$id]"; $key = 'songs'; break;
             case 'album': $url = "http://music.163.com/api/album/$id?id=$id"; $key = 'album'; break;
             case 'artist': $url = "http://music.163.com/api/artist/$id?id=$id"; $key = 'artist'; break;
-            case 'collect': $url = "http://music.163.com/api/playlist/detail?id=$id"; $key = 'result'; break;
+            case 'collect': 
+                $url = "http://music.163.com/api/v3/playlist/detail?id=$id";
+                $collect = self::fetch_url($url, $data);
+                if ( $collect ) {
+                    $collect = json_decode($collect, true);
+                    $id = array();
+                    foreach ($collect['playlist']['trackIds'] as $v) {
+                        array_push($id, $v['id']);
+                    }
+                    $id = implode(",",$id);
+                }
+                $url = "http://music.163.com/api/song/detail/?ids=[$id]"; $key = 'songs';
+                break;
             case 'recommend': 
                 $url = "http://music.163.com/api/discovery/recommend/songs";
                 $MUSIC_U = Typecho_Widget::widget('Widget_Options')->plugin('cPlayer')->MUSIC_U;
