@@ -7,7 +7,7 @@ date_default_timezone_set('PRC');
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.2.9
+ * @version 1.2.10
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -16,7 +16,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 {
     //此变量用以在一个变量中区分多个播放器实例
     protected static $playerID = 0;
-    protected static $VERSION = '1.2.9';
+    protected static $VERSION = '1.2.10';
     protected static $INTEGRITY = 'sha256-DfhgVlsA1ZGGnu67H8m4gS6sKim08dZwCO51NqiW54Q='; //commit#f9b593d
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
@@ -782,8 +782,9 @@ EOF;
     {
         $return = false;
         $dir=Typecho_Common::url('action/cplayerapi',Helper::options()->index);
+        $MUSIC_U = Typecho_Widget::widget('Widget_Options')->plugin('cPlayer')->MUSIC_U;
         $data = array(
-            'COOKIE' => 'appver=2.0.2;',
+            'COOKIE' => "appver=2.0.2;$MUSIC_U",
             'REFERER' => 'http://music.163.com/',
             'USERAGENT' => 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.157 Safari/537.36'
         );
@@ -805,11 +806,7 @@ EOF;
                 $url = "http://music.163.com/api/song/detail/?ids=[$id]"; $key = 'songs';
                 break;
             case 'recommend': 
-                $url = "http://music.163.com/api/discovery/recommend/songs";
-                $MUSIC_U = Typecho_Widget::widget('Widget_Options')->plugin('cPlayer')->MUSIC_U;
-                $data['COOKIE'] .= $MUSIC_U;
-
-                $key = 'recommend';
+                $url = "http://music.163.com/api/discovery/recommend/songs"; $key = 'recommend';
                 break;
             default: $url = "http://music.163.com/api/song/detail/?ids=[$id]"; $key = 'songs';
         }
