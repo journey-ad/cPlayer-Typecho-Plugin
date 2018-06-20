@@ -15,7 +15,6 @@ class cPlayer_Action extends Typecho_Widget implements Widget_Interface_Do {
             'br' => $br,
             'csrf_token' => '',
         );
-        $data['COOKIE'] = 'os=pc;';
         $cexecute = self::fetch_url($url, $data);
         if ($cexecute){
             $result = json_decode($cexecute);
