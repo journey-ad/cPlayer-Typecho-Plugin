@@ -7,7 +7,7 @@ date_default_timezone_set('PRC');
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.2.11
+ * @version 1.2.12
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -16,7 +16,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 {
     //此变量用以在一个变量中区分多个播放器实例
     protected static $playerID = 0;
-    protected static $VERSION = '1.2.11';
+    protected static $VERSION = '1.2.12';
     protected static $INTEGRITY = 'sha256-DfhgVlsA1ZGGnu67H8m4gS6sKim08dZwCO51NqiW54Q='; //commit#f9b593d
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
@@ -195,6 +195,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
                             <div class="media-toolbar">
                                 <textarea id="media-toolbar-code"></textarea>
                                 <div class="media-toolbar-primary">
+                                    <input id="autoplay" type="checkbox"><label for="autoplay">自动播放</label>
                                     <button class="btn primary" id="cft-shell-insert">插入至文章</button>
                                 </div>
                             </div>
@@ -300,7 +301,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
             var songs_div = `
 <div class="media-local-songs">
     <a href="javascript:void(0);" style="float: right;color: #333;" onclick="$(this).parent().remove();return false;">X</a>
-    歌曲链接：<input type="text" name="song_url" placeholder="http://…">
+    歌曲链接：<input type="text" name="song_url" placeholder="https://…">
     标题：<input type="text" name="song_name" placeholder="好久不见" style="width: 180px">
     艺术家：<input type="text" name="song_artist" placeholder="陈奕迅" style="width: 180px"><br>
     歌词：
@@ -317,32 +318,34 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
         })
         $('#cft-shell-tips').text('请在下方填写相关内容').delay(3000).slideToggle();
         function parse_netease(){
+            var autoplay = document.getElementById('autoplay').checked;
             switch ($("input[name='netease_type']:checked").val()){
                 case 'netease_songlist':
                     var songs = $('.cft-textarea').val().split('\n').toString();
-                    var code = "[player id='" + songs + "'/]\n"
+                    var code = String.format("[player id='{0}' autoplay='{1}'/]\n", songs, autoplay);
                     break;
                 case 'netease_album':
                     var album = $('.cft-textarea').val().toString();
-                    var code = "[player id='" + album + "' type='album'/]\n"
+                    var code = String.format("[player id='{0}' type='album' autoplay='{1}'/]\n", album, autoplay);
                     break;
                 case 'netease_playlist':
                     var playlist = $('.cft-textarea').val().toString();
-                    var code = "[player id='" + playlist + "' type='collect'/]\n"
+                    var code = String.format("[player id='{0}' type='collect' autoplay='{1}'/]\n", playlist, autoplay);
                     break;
                 case 'netease_artist':
                     var artist = $('.cft-textarea').val().toString();
-                    var code = "[player id='" + artist + "' type='artist'/]\n"
+                    var code = String.format("[player id='{0}' type='artist' autoplay='{1}'/]\n", artist, autoplay);
                     break;
                 case 'netease_recommend':
-                    var code = "[player type='recommend'/]\n";
+                    var code = String.format("[player type='recommend' autoplay='{0}'/]\n", autoplay);
                     break;
                 default:                
             }
             return code;
         }
         function parse_local(){
-            var code_player = `[player]\n{mp3}[/player]\n`;
+            var autoplay = document.getElementById('autoplay').checked;
+            var code_player = String.format("[player autoplay='{0}']\n{mp3}[/player]\n", autoplay);
             var code_mp3 = `[mp3 url="{url}" artist="{artist}" name="{name}" {else}]\n[lrc]\n{lrc}\n[/lrc]\n[tlrc]\n{tlrc}\n[/tlrc]\n[/mp3]\n`;
             var mp3 = '';
             for(var i=0; i < $('.cft-li[data-type=local]').children().filter('.media-local-songs').length; i++){
@@ -361,12 +364,12 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
                 
                 _temp2 = '';
                 if (isURL(song.lrc)){
-                    _temp2 += 'lrc="' + song.lrc + '" ';
+                    _temp2 += String.format('lrc="{0}" ', song.lrc);
                     _temp = _temp.replace('[lrc]\n{lrc}\n[/lrc]\n', '');
                 }else _temp = _temp.replace('{lrc}', song.lrc);
 
                 if (isURL(song.tlrc)){
-                    _temp2 += 'tlrc="' + song.tlrc + '" ';
+                    _temp2 += String.format('tlrc="{0}" ', song.tlrc);
                     _temp = _temp.replace('[tlrc]\n{tlrc}\n[/tlrc]\n', '');
                 }else _temp = _temp.replace('{tlrc}', song.tlrc);
                 
@@ -375,7 +378,6 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
             }
             var player = code_player.replace('{mp3}', mp3)
             return player;
-            
         }
         
         function isURL(str){
@@ -412,6 +414,14 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
                 }
                 $('#cft-shell-tips').text('代码已插入至文章内光标所在位置').slideToggle().delay(5000).slideToggle()
             }
+        }
+                
+        String.format = function(src){
+            if (arguments.length == 0) return null;
+            var args = Array.prototype.slice.call(arguments, 1);
+            return src.replace(/\{(\d+)\}/g, function(m, i){
+                return args[i];
+            });
         }
         </script>
 
@@ -461,7 +471,8 @@ var cp = function(){
         cPlayers[i] = new cPlayer({
             element: element,
             list: cPlayerOptions[i]['list'],
-            });
+        });
+        cPlayers[i].music.autoplay = cPlayerOptions[i]['autoplay'] || false;
     };
     cPlayers = [];cPlayerOptions = [];
 };
