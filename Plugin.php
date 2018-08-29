@@ -7,7 +7,7 @@ date_default_timezone_set('PRC');
  * 
  * @package cPlayer
  * @author journey.ad
- * @version 1.2.12
+ * @version 1.2.13
  * @dependence 13.12.12-*
  * @link https://github.com/journey-ad/cPlayer-Typecho-Plugin
  */
@@ -16,7 +16,7 @@ class cPlayer_Plugin implements Typecho_Plugin_Interface
 {
     //此变量用以在一个变量中区分多个播放器实例
     protected static $playerID = 0;
-    protected static $VERSION = '1.2.12';
+    protected static $VERSION = '1.2.13';
     protected static $INTEGRITY = 'sha256-DfhgVlsA1ZGGnu67H8m4gS6sKim08dZwCO51NqiW54Q='; //commit#f9b593d
     /**
      * 激活插件方法,如果激活失败,直接抛出异常
@@ -472,7 +472,7 @@ var cp = function(){
             element: element,
             list: cPlayerOptions[i]['list'],
         });
-        cPlayers[i].music.autoplay = cPlayerOptions[i]['autoplay'] || false;
+        if(cPlayerOptions[i]['autoplay'] === 'true') cPlayers[i].music.autoplay = true;
     };
     cPlayers = [];cPlayerOptions = [];
 };
